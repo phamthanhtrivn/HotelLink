@@ -22,6 +22,7 @@ public class User {
     @Column(name = "user_id")
     private String id;
     @Email(message = "Email không hợp lệ")
+    @Column(unique = true)
     private String email;
     @NotBlank(message = "Mật khẩu không được để trống")
     private String password;

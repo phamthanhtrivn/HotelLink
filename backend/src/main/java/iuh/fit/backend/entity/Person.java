@@ -37,5 +37,6 @@ public class Person {
             regexp = "^(03|05|07|08|09|01)+([0-9]{8})$",
             message = "Số điện thoại không hợp lệ"
     )
+    @Column(unique = true)
     private String phone;
 }
