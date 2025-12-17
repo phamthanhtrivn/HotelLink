@@ -30,7 +30,7 @@ public class RoomType {
     @DecimalMin(value = "300000", message = "Giá phòng phải lớn hơn hoặc bằng 300,000 VND")
     private double price;
     @Min(value = 1, message = "Sức chứa phải ít nhất 1 người")
-    @Max(value = 6, message = "Sức chứa không vượt quá 6 người")
+    @Max(value = 10, message = "Sức chứa không vượt quá 10 người")
     private int guestCapacity;
     @DecimalMin(value = "10", message = "Diện tích phòng phải lớn hơn 10m2")
     private double area;
