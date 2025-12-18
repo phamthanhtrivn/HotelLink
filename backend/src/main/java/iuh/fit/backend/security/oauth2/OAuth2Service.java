@@ -69,7 +69,7 @@ public class OAuth2Service {
         user.setUpdatedAt(null);
         user.setStatus(true);
 
-        userRepo.save(user);
+        user = userRepo.save(user);
 
         Customer customer = new Customer();
         customer.setUser(user);

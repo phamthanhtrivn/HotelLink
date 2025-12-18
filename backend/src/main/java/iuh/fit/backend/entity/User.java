@@ -21,6 +21,7 @@ public class User {
     @Id
     @Column(name = "user_id")
     private String id;
+    @NotBlank(message = "Email không được để trống")
     @Email(message = "Email không hợp lệ")
     @Column(unique = true)
     private String email;
