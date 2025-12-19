@@ -108,7 +108,7 @@ public class AuthService {
 
             String token = jwtService.generateAccessToken(user);
 
-            LoginResponse loginResponse = new LoginResponse(token);
+            LoginResponse loginResponse = new LoginResponse(user.getRole().name(), token);
 
             response.setSuccess(true);
             response.setMessage("Đăng nhập thành công!");
@@ -116,10 +116,13 @@ public class AuthService {
 
         } catch (DisabledException e) {
             response.setMessage("Tài khoản chưa được kích hoạt!");
+            response.setStatus(HTTPResponse.SC_FORBIDDEN);
         } catch (BadCredentialsException e) {
             response.setMessage("Email hoặc mật khẩu không đúng!");
+            response.setStatus(HTTPResponse.SC_BAD_REQUEST);
         } catch (Exception e) {
             response.setMessage("Lỗi hệ thống!");
+            response.setStatus(HTTPResponse.SC_SERVER_ERROR);
         }
 
         return response;

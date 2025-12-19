@@ -2,6 +2,7 @@ package iuh.fit.backend.controller.auth;
 
 import iuh.fit.backend.dto.LoginRequest;
 import iuh.fit.backend.dto.RegisterRequest;
+import iuh.fit.backend.dto.APIResponse;
 import iuh.fit.backend.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,20 +13,36 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class AuthController {
+
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authService.register(request));
+    public ResponseEntity<APIResponse<?>> register(
+            @Valid @RequestBody RegisterRequest request
+    ) {
+        APIResponse<?> response = authService.register(request);
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> register(@Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+    public ResponseEntity<APIResponse<?>> login(
+            @Valid @RequestBody LoginRequest request
+    ) {
+        APIResponse<?> response = authService.login(request);
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
     }
-    
+
     @GetMapping("/verify-token")
-    public ResponseEntity<?> verifyToken(@RequestHeader ("Authorization") String authHeader) {
-        return ResponseEntity.ok(authService.verifyToken(authHeader));
+    public ResponseEntity<APIResponse<?>> verifyToken(
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        APIResponse<?> response = authService.verifyToken(authHeader);
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
     }
 }

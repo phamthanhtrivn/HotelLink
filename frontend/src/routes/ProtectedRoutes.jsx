@@ -1,24 +1,24 @@
+import { AuthContext } from "@/context/AuthContext";
+import { useContext } from "react";
 import { Navigate } from "react-router-dom";
 
 const ProtectedRoutes = ({ children, allowedRoles }) => {
-  const user = {
-    vaiTro: "ADMIN",
-  };
+  const { user } = useContext(AuthContext);
 
-  if (!user) {
+  const role = user?.role || "GUEST";
+
+  if (role === "GUEST" && !allowedRoles.includes("GUEST")) {
     return <Navigate to="/login" replace />;
   }
 
-  if (!allowedRoles.includes(user.vaiTro)) {
-    switch (user.vaiTro) {
+  if (!allowedRoles.includes(role)) {
+    switch (role) {
       case "MEMBER":
         return <Navigate to="/" replace />;
       case "STAFF":
         return <Navigate to="/staff" replace />;
       case "ADMIN":
         return <Navigate to="/admin" replace />;
-      default:
-        return <Navigate to="/" replace />;
     }
   }
 

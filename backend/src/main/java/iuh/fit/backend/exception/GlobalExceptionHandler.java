@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
         apiResponse.setStatus(HTTPResponse.SC_BAD_REQUEST);
         apiResponse.setData(errors);
 
-        return ResponseEntity.ok().body(apiResponse);
+        return ResponseEntity.status(HTTPResponse.SC_BAD_REQUEST).body(apiResponse);
     }
 
 }

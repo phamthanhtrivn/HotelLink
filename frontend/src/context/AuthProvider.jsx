@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
             setUser(null);
           }
         } catch (err) {
-          toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+          toast.error("Lỗi xác thực. Vui lòng đăng nhập lại.");
           setToken(null);
           setUser(null);
         } finally {
@@ -39,9 +39,8 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
-  const login = (userData, jwtToken) => {
-    setUser(userData);
-    setToken(jwtToken);
+  const login = (token) => {
+    setToken(token);
   };
 
   const logout = () => {
@@ -57,7 +56,7 @@ export const AuthProvider = ({ children }) => {
     );
 
   return (
-    <AuthContext.Provider value={{ user, token, setToken, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

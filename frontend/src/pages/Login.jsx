@@ -8,19 +8,16 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { FcGoogle } from "react-icons/fc";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Loader2 } from "lucide-react"; 
-import bg01 from "../assets/home/Hero.jpg";
-import bg02 from "../assets/home/Hotel.jpg";
-import bg03 from "../assets/bg03.jpg";
-import bg04 from "../assets/bg04.jpg";
-import ImgSlider from "@/components/common/ImgSlider";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import bg01 from "../assets/Hotel-1.jpg";
+import bg02 from "../assets/Hotel-2.png";
+import ImgSlider from "@/components/common/customer/ImgSlider";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AuthContext } from "@/context/AuthContext";
-import axios from "axios";
+import { authService } from "@/services/authService";
 
 const Login = () => {
-  const baseUrl = import.meta.env.VITE_BASE_API_URL;
   const { user, login } = useContext(AuthContext);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -29,7 +26,6 @@ const Login = () => {
   const navigate = useNavigate();
   const emailRef = useRef();
   const passwordRef = useRef();
-
   const [errors, setErrors] = useState({
     email: "",
     password: "",
@@ -37,8 +33,10 @@ const Login = () => {
 
   useEffect(() => {
     if (user) {
-      if (user.vaiTro === "ADMIN") {
-        navigate("/admin/dashboard");
+      if (user.role === "ADMIN") {
+        navigate("/admin");
+      } else if (user.role === "STAFF") {
+        navigate("/staff");
       } else {
         navigate("/");
       }
@@ -46,65 +44,60 @@ const Login = () => {
   }, []);
 
   const handleLogin = async () => {
-    const emailRegex = /^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$/;
-
-    const newErrors = { email: "", password: "" };
-
-    if (!email || !emailRegex.test(email)) {
-      newErrors.email = "Email không hợp lệ!";
-    }
-
-    if (!password) {
-      newErrors.password = "Mật khẩu không được để trống!";
-    }
-
-    setErrors(newErrors);
-
-    if (newErrors.email) {
-      emailRef.current.focus();
-      return;
-    }
-
-    if (newErrors.password) {
-      passwordRef.current.focus();
-      return;
-    }
-
     setIsLoading(true);
+    setErrors({ email: "", password: "" });
 
     try {
-      const res = await axios.post(`${baseUrl}/auth/login`, {
+      const loginRequest = {
         email,
-        matKhau: password,
-      });
+        password,
+      };
+      const res = await authService.login(loginRequest);
 
-      const data = res.data;
+      if (res.success) {
+        toast.success(res.message);
 
-      if (data.success) {
-        toast.success(data.message);
+        login(res.data.token);
 
-        login(data.data.taiKhoan, data.data.token);
-
-        if (data.data.taiKhoan.vaiTro === "ADMIN") {
-          navigate("/admin/dashboard");
+        if (res.data.role === "ADMIN") {
+          navigate("/admin");
+        } else if (res.data.role === "STAFF") {
+          navigate("/staff");
         } else {
           navigate("/");
         }
+      } else if (!res.success && res.data) {
+        const newErrors = { email: "", password: "" };
+        if (res.data.email) {
+          newErrors.email = res.data.email;
+        }
+        if (res.data.password) {
+          newErrors.password = res.data.password;
+        }
+
+        setErrors(newErrors);
+
+        if (newErrors.email) {
+          emailRef.current.focus();
+          return;
+        }
+
+        if (newErrors.password) {
+          passwordRef.current.focus();
+          return;
+        }
       } else {
-        toast.error(data.message);
+        toast.error(res.message);
       }
     } catch (error) {
+      console.log(error);
       toast.error("Đăng nhập thất bại. Vui lòng thử lại.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleLoginGG = () => {
-    window.location.href = `${
-      import.meta.env.VITE_BASE_API_URL
-    }/oauth2/authorization/google`;
-  };
+  const handleLoginGG = () => {};
 
   return (
     <div className="flex min-h-screen bg-linear-to-br from-[#e2ecf7] to-[#f9fafc] overflow-hidden">
@@ -115,8 +108,8 @@ const Login = () => {
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.8 }}
       >
-        <ImgSlider images={[bg01, bg02, bg03, bg04]} interval={4000} />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/20"></div>
+        <ImgSlider images={[bg01, bg02]} interval={4000} />
+        <div className="absolute inset-0 bg-linear-to-b from-black/40 to-black/20"></div>
         <div className="absolute inset-0 flex flex-col justify-center px-12 text-white">
           <h1 className="text-4xl font-bold leading-tight drop-shadow-lg">
             Chào mừng trở lại
@@ -136,7 +129,7 @@ const Login = () => {
       >
         <Card className="w-full max-w-sm border border-gray-200 shadow-lg rounded-2xl backdrop-blur-lg">
           <CardHeader>
-            <CardTitle className="text-center text-3xl font-bold text-[var(--color-background)] tracking-wide">
+            <CardTitle className="text-center text-3xl font-bold text-(--color-primary) tracking-wide">
               Đăng Nhập
             </CardTitle>
           </CardHeader>
@@ -145,7 +138,7 @@ const Login = () => {
             <div className="relative space-y-2 group">
               <Label
                 htmlFor="email"
-                className="text-sm font-medium text-gray-700 group-focus-within:text-[var(--color-background)] transition-colors"
+                className="text-sm font-medium text-gray-700 group-focus-within:text-(--color-primary) transition-colors"
               >
                 Email <span className="text-red-500">*</span>
               </Label>
@@ -153,7 +146,7 @@ const Login = () => {
                 id="email"
                 type="email"
                 placeholder="Nhập email của bạn"
-                className="focus-visible:ring-[var(--color-background)] rounded-xl"
+                className="focus-visible:ring-(--color-primary) rounded-xl"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 ref={emailRef}
@@ -167,7 +160,7 @@ const Login = () => {
             <div className="relative space-y-2 group">
               <Label
                 htmlFor="password"
-                className="text-sm font-medium text-gray-700 group-focus-within:text-[var(--color-background)] transition-colors"
+                className="text-sm font-medium text-gray-700 group-focus-within:text-(--color-primary) transition-colors"
               >
                 Mật khẩu <span className="text-red-500">*</span>
               </Label>
@@ -176,7 +169,7 @@ const Login = () => {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Nhập mật khẩu"
-                  className="focus-visible:ring-[var(--color-background)] rounded-xl pr-10"
+                  className="focus-visible:ring-(--color-primary) rounded-xl pr-10"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   ref={passwordRef}
@@ -198,7 +191,7 @@ const Login = () => {
             <Button
               onClick={handleLogin}
               disabled={isLoading}
-              className={`w-full bg-[var(--color-background)] font-semibold rounded-xl shadow-md flex items-center justify-center gap-2
+              className={`w-full bg-(--color-primary) font-semibold rounded-xl shadow-md flex items-center justify-center gap-2 cursor-pointer
     ${isLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-[#2a4b70]"}`}
             >
               {isLoading && <Loader2 className="animate-spin h-5 w-5" />}
