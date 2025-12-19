@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
         ex.getBindingResult().getFieldErrors().forEach(err ->
                 errors.put(err.getField(), err.getDefaultMessage())
         );
-
+        apiResponse.setSuccess(false);
         apiResponse.setMessage("Dữ liệu không hợp lệ");
         apiResponse.setStatus(HTTPResponse.SC_BAD_REQUEST);
         apiResponse.setData(errors);
