@@ -121,8 +121,8 @@ const Footer = () => {
                   className="text-(--color-background) mt-0.5 shrink-0 group-hover:scale-110 transition-transform"
                 />
                 <span className="text-sm leading-relaxed">
-                  Thứ 2 - Thứ 6<br />
-                  7:30 - 17:00
+                  Thứ 2 - Chủ Nhật<br />
+                  07:00 - 22:00
                 </span>
               </li>
             </ul>
