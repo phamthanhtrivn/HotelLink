@@ -97,7 +97,11 @@ const Login = () => {
     }
   };
 
-  const handleLoginGG = () => {};
+  const handleLoginGG = () => {
+    window.location.href = `${
+      import.meta.env.VITE_BASE_API_URL
+    }/oauth2/authorization/google`;
+  };
 
   return (
     <div className="flex min-h-screen bg-linear-to-br from-[#e2ecf7] to-[#f9fafc] overflow-hidden">

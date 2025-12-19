@@ -32,11 +32,6 @@ public class Person {
             message = "Viết hoa mỗi chữ cái đầu, ít nhất 2 từ gồm họ và tên"
     )
     private String fullName;
-    @NotBlank(message = "Số điện thoại không được để trống")
-    @Pattern(
-            regexp = "^(03|05|07|08|09|01)+([0-9]{8})$",
-            message = "Số điện thoại không hợp lệ"
-    )
     @Column(unique = true)
     private String phone;
 }
