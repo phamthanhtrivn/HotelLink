@@ -176,9 +176,9 @@ const Facilities = () => {
   ];
 
   return (
-    <div className="bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <div className="bg-linear-to-br from-gray-50 via-white to-gray-50">
       {/* Hero Header */}
-      <div className="relative bg-gradient-to-r from-[#1a2332] to-[#2d3a4d] text-white py-20 px-4 overflow-hidden">
+      <div className="relative bg-linear-to-r from-[#1a2332] to-[#2d3a4d] text-white py-20 px-4 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-96 h-96 bg-(--color-background) rounded-full filter blur-3xl"></div>
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-(--color-background) rounded-full filter blur-3xl"></div>

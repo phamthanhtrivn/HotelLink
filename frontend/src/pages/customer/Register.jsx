@@ -269,7 +269,7 @@ const Register = () => {
                   id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder="Nhập lại mật khẩu"
-                  className="focus-visible:ring-[var(--color-primary)] rounded-xl pr-10"
+                  className="focus-visible:ring-(--color-primary) rounded-xl pr-10"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   ref={confirmPasswordRef}
@@ -291,7 +291,7 @@ const Register = () => {
             <Button
               onClick={handleRegister}
               disabled={isLoading}
-              className="w-full bg-[var(--color-primary)] cursor-pointer font-semibold hover:bg-[#2a4b70] transition-colors duration-300 rounded-xl shadow-md flex items-center justify-center gap-2"
+              className="w-full bg-(--color-primary) cursor-pointer font-semibold hover:bg-[#2a4b70] transition-colors duration-300 rounded-xl shadow-md flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>
