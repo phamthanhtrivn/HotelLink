@@ -30,6 +30,7 @@ import ReviewManagement from "./pages/employee/ReviewManagement";
 import ServiceManagement from "./pages/employee/ServiceManagement";
 import { Route, Routes } from "react-router-dom";
 import NotFound from "./pages/NotFound";
+import PointsPolicy from "./pages/customer/PointsPolicy";
 
 const App = () => {
   return (
@@ -57,6 +58,7 @@ const App = () => {
         <Route path="facility" element={<Facility />} />
         <Route path="about" element={<AboutUs />} />
         <Route path="contact" element={<Contact />} />
+        <Route path="points-policy" element={<PointsPolicy />} />
       </Route>
 
       {/* MEMBER */}

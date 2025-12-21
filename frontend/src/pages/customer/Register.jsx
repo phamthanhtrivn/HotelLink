@@ -17,6 +17,7 @@ import { toast } from "react-toastify";
 import { Loader2 } from "lucide-react";
 import { AuthContext } from "@/context/AuthContext";
 import { authService } from "@/services/authService";
+import { baseUrl } from "@/constants/constants";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -135,9 +136,7 @@ const Register = () => {
   };
 
   const handleLoginGG = () => {
-    window.location.href = `${
-      import.meta.env.VITE_BASE_API_URL
-    }/oauth2/authorization/google`;
+    window.location.href = `${baseUrl}/oauth2/authorization/google`;
   };
 
   return (

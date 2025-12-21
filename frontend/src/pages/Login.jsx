@@ -16,6 +16,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AuthContext } from "@/context/AuthContext";
 import { authService } from "@/services/authService";
+import { baseUrl } from "@/constants/constants";
 
 const Login = () => {
   const { user, login } = useContext(AuthContext);
@@ -98,9 +99,7 @@ const Login = () => {
   };
 
   const handleLoginGG = () => {
-    window.location.href = `${
-      import.meta.env.VITE_BASE_API_URL
-    }/oauth2/authorization/google`;
+    window.location.href = `${baseUrl}/oauth2/authorization/google`;
   };
 
   return (
