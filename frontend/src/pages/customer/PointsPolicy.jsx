@@ -1,7 +1,10 @@
 import React from "react";
 import { Star, Gift, BedDouble, Info } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const PointsPolicy = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen px-4 md:px-10 lg:px-20 py-12">
       {/* Header */}
@@ -24,8 +27,8 @@ const PointsPolicy = () => {
               Nhận điểm khi đánh giá đơn đặt phòng
             </h3>
             <p className="text-gray-600 text-sm leading-relaxed">
-              Sau khi hoàn tất đơn đặt phòng và gửi đánh giá trải nghiệm,
-              khách hàng sẽ nhận được điểm tích lũy tương ứng với số đêm lưu trú.
+              Sau khi hoàn tất đơn đặt phòng và gửi đánh giá trải nghiệm, khách
+              hàng sẽ nhận được điểm tích lũy tương ứng với số đêm lưu trú.
             </p>
             <p className="text-sm text-gray-700 mt-2">
               <span className="font-semibold">Quy đổi:</span> 1 đêm lưu trú = 1
@@ -50,10 +53,9 @@ const PointsPolicy = () => {
               .
             </p>
             <p className="text-sm text-gray-700 mt-2">
-              Đêm miễn phí áp dụng cho <span className="font-semibold">
-                mọi loại phòng
-              </span>{" "}
-              đang được kinh doanh.
+              Đêm miễn phí áp dụng cho{" "}
+              <span className="font-semibold">mọi loại phòng</span> đang được
+              kinh doanh.
             </p>
           </div>
         </div>
@@ -80,6 +82,23 @@ const PointsPolicy = () => {
             Điểm tích lũy không có giá trị quy đổi thành tiền mặt và chỉ được sử
             dụng cho các ưu đãi trong hệ thống khách sạn.
           </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button
+            onClick={() => navigate(-1)}
+            variant="outline"
+            className="px-6 py-3 cursor-pointer"
+          >
+            Quay lại trang trước
+          </Button>
+
+          <Button
+            onClick={() => navigate("/", { replace: true })}
+            className="px-6 py-3 bg-(--color-primary) hover:bg-[#2a4b70] text-white cursor-pointer"
+          >
+            Về trang chủ
+          </Button>
         </div>
       </div>
     </div>

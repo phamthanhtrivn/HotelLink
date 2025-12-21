@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable react-hooks/set-state-in-effect */
 import React, { useContext, useEffect, useRef } from "react";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
@@ -206,6 +205,7 @@ const AccountInfo = () => {
             {/* Button */}
             <div className="pt-4 md:pt-6">
               <Button
+                disabled={loading}
                 onClick={handleUpdate}
                 className="w-full bg-(--color-primary) hover:bg-[#2a4b70]
               text-white font-bold py-3 md:py-4 rounded-xl
