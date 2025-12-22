@@ -84,7 +84,7 @@ const PointsPolicy = () => {
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center ">
           <Button
             onClick={() => navigate(-1)}
             variant="outline"

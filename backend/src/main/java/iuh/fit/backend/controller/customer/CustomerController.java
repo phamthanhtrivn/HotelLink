@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @PreAuthorize("hasRole('MEMBER')")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/member/customer")
+@RequestMapping("/api/member/customers")
 public class CustomerController {
     private final CustomerService customerService;
 
