@@ -4,6 +4,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 import iuh.fit.backend.security.jwt.JwtAuthenticationFilter;
 import iuh.fit.backend.security.oauth2.CustomOAuth2UserService;
 import iuh.fit.backend.security.oauth2.OAuth2SuccessHandler;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,8 +44,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/public/**",
                                 "/api/auth/**",
-                                "/oauth2/**",
-                                "/login/oauth2/**"
+                                "/oauth2/**"
                         ).permitAll()
 
                         // member

@@ -1,10 +1,9 @@
-import { token } from "@/constants/constants";
 import api from "./api";
 
 export const customerService = {
   getCustomerById: async (customerId) => {
     const res = await api.get(`/member/customers/${customerId}`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     });
     return res.data;
   },
@@ -13,9 +12,9 @@ export const customerService = {
       `/member/customers/${customerData.id}`,
       customerData,
       {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       }
-    );
+    );  
     return res.data;
   }
 };

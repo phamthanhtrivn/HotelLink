@@ -1,8 +1,6 @@
 package iuh.fit.backend.controller.auth;
 
-import iuh.fit.backend.dto.LoginRequest;
-import iuh.fit.backend.dto.RegisterRequest;
-import iuh.fit.backend.dto.APIResponse;
+import iuh.fit.backend.dto.*;
 import iuh.fit.backend.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -45,4 +43,28 @@ public class AuthController {
                 .status(response.getStatus())
                 .body(response);
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<APIResponse<?>> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {
+        APIResponse<?> response = authService.sendResetPasswordEmail(request.getEmail());
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
+    }
+
+    @GetMapping("/validate-reset-password-token")
+    public ResponseEntity<APIResponse<?>> validateResetToken(@RequestParam String token) {
+        APIResponse<?> response = authService.validateResetToken(token);
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(authService.validateResetToken(token));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(
+            @RequestBody @Valid ResetPasswordRequest request
+    ) {
+        return ResponseEntity.ok(authService.resetPassword(request.getToken(), request.getNewPassword()));
+    }
+
 }

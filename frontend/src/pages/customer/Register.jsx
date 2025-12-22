@@ -43,18 +43,6 @@ const Register = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
-  useEffect(() => {
-    if (user) {
-      if (user.role === "ADMIN") {
-        navigate("/admin");
-      } else if (user.role === "STAFF") {
-        navigate("/staff");
-      } else {
-        navigate("/");
-      }
-    }
-  }, []);
-
   const handleRegister = async () => {
     const newErrors = {
       name: "",
@@ -138,6 +126,18 @@ const Register = () => {
   const handleLoginGG = () => {
     window.location.href = `${baseUrl}/oauth2/authorization/google`;
   };
+
+    useEffect(() => {
+    if (user) {
+      if (user.role === "ADMIN") {
+        navigate("/admin");
+      } else if (user.role === "STAFF") {
+        navigate("/staff");
+      } else {
+        navigate("/");
+      }
+    }
+  }, []);
 
   return (
     <div className="flex min-h-screen bg-linear-to-br from-[#e2ecf7] to-[#f9fafc] overflow-hidden">

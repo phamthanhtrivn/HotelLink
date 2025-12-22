@@ -1,6 +1,7 @@
 package iuh.fit.backend.service;
 
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+import io.github.cdimascio.dotenv.Dotenv;
 import iuh.fit.backend.dto.*;
 import iuh.fit.backend.entity.Customer;
 import iuh.fit.backend.entity.Person;
@@ -34,6 +35,8 @@ public class AuthService {
     private final UserRepo userRepo;
     private final CustomerRepo customerRepo;
     private final PersonRepo personRepo;
+    private final String frontendUrl = Dotenv.load().get("FRONTEND_URL");
+    private final EmailService emailService;
 
     @Transactional
     public APIResponse<Object> register(RegisterRequest request) {
@@ -158,7 +161,13 @@ public class AuthService {
                 return response;
             }
             User user = optUser.get();
+
             Optional<Person> optPerson = personRepo.findById(user.getId());
+            if (optPerson.isEmpty()) {
+                response.setMessage("Không tìm thấy thông tin cá nhân");
+                response.setStatus(HTTPResponse.SC_BAD_REQUEST);
+                return response;
+            }
             Person person = optPerson.get();
 
             InforResponse inforResponse = new InforResponse(user.getId(), person.getFullName(), user.getEmail() ,person.getPhone(), user.getRole().name());
@@ -173,6 +182,62 @@ public class AuthService {
             response.setMessage("Lỗi xác thực token: " + e.getMessage());
             response.setStatus(HTTPResponse.SC_SERVER_ERROR);
             return response;
+        }
+    }
+
+    public APIResponse<Object> sendResetPasswordEmail(String email) {
+        APIResponse<Object> response = new APIResponse<>();
+        response.setSuccess(false);
+        response.setData(null);
+        response.setStatus(HTTPResponse.SC_OK);
+
+        User user = userRepo.findUserByEmail(email);
+        if (user == null) {
+            response.setMessage("Email không tồn tại trong hệ thống!");
+            response.setStatus(HTTPResponse.SC_BAD_REQUEST);
+            return response;
+        }
+
+        String token = jwtService.generateResetPasswordToken(email);
+        String link = frontendUrl + "/reset-password?token=" + token;
+
+        emailService.sendResetPasswordEmail(email, link);
+        response.setSuccess(true);
+        response.setMessage("Link đặt lại mật khẩu đã được gửi đến email của bạn!");
+        return response;
+    }
+
+    public APIResponse<Object> validateResetToken(String token) {
+        try {
+            if (!jwtService.validateResetPasswordToken(token)) {
+                return new APIResponse<>(false, HTTPResponse.SC_NOT_FOUND, "Token không hợp lệ hoặc đã hết hạn", null);
+            }
+            return new APIResponse<>(true, HTTPResponse.SC_OK, "Token hợp lệ", null);
+        } catch (Exception e) {
+            return new APIResponse<>(false, HTTPResponse.SC_SERVER_ERROR, "Lỗi khi kiểm tra token: " + e.getMessage(), null);
+        }
+    }
+
+    public APIResponse<Void> resetPassword(String token, String newPassword) {
+        try {
+            if (!jwtService.validateResetPasswordToken(token)) {
+                return new APIResponse<>(false, HTTPResponse.SC_NOT_FOUND, "Token không hợp lệ hoặc đã hết hạn", null);
+            }
+
+            String email = jwtService.extractEmailFromResetToken(token);
+            User user = userRepo.findUserByEmail(email);
+            if (user == null) {
+                return new APIResponse<>(false, HTTPResponse.SC_NOT_FOUND, "Không tìm thấy người dùng", null);
+            }
+
+            user.setPassword(passwordEncoder.encode(newPassword));
+            user.setUpdatedAt(LocalDateTime.now());
+            userRepo.save(user);
+
+            return new APIResponse<>(true, HTTPResponse.SC_OK, "Đặt lại mật khẩu thành công", null);
+
+        } catch (Exception e) {
+            return new APIResponse<>(false, HTTPResponse.SC_SERVER_ERROR, "Lỗi khi đặt lại mật khẩu: " + e.getMessage(), null);
         }
     }
 
