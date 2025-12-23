@@ -18,6 +18,14 @@ public interface ReviewRepo extends JpaRepository<Review, String> {
         r.createdAt DESC
     LIMIT 3
     """)
-    List<Review> findTop3ByLoaiPhongOrderByRatingDesc();
+    List<Review> findTop3ByRoomTypeOrderByRatingDesc();
 
+    @Query("SELECT r " +
+            "FROM Review r " +
+            "JOIN FETCH r.booking b " +
+            "JOIN FETCH b.room ro " +
+            "JOIN FETCH ro.roomType rt " +
+            "WHERE rt.id = :roomTypeId " +
+            "ORDER BY r.createdAt DESC")
+    List<Review> findReviewsByRoomTypeOrderByCreatedAtDesc(String roomTypeId);
 }

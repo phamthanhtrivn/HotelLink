@@ -19,7 +19,7 @@ public class ReviewService {
         response.setData(null);
         response.setStatus(HTTPResponse.SC_OK);
         try {
-            List<Review> topThreeRatings = reviewRepo.findTop3ByLoaiPhongOrderByRatingDesc();
+            List<Review> topThreeRatings = reviewRepo.findTop3ByRoomTypeOrderByRatingDesc();
             response.setData(topThreeRatings);
             response.setSuccess(true);
             response.setMessage("Lấy danh sách đánh giá thành công");
@@ -31,4 +31,13 @@ public class ReviewService {
         return response;
     }
 
+    public APIResponse<List<Review>> getReviewsByRoomType(String roomTypeId) {
+        List<Review> reviews = reviewRepo.findReviewsByRoomTypeOrderByCreatedAtDesc(roomTypeId);
+        if (reviews.isEmpty()) {
+            return new APIResponse<>(false, HTTPResponse.SC_OK, "Không có đánh giá cho loại phòng này", null);
+        }
+        else {
+            return new APIResponse<>(true, HTTPResponse.SC_OK, "Lấy đánh giá thành công", reviews);
+        }
+    }
 }

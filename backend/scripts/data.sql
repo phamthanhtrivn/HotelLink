@@ -512,6 +512,7 @@ INSERT INTO `services` (`service_id`, `name`, `service_type`, `status`, `unit_pr
                                                                                           ('SV10', 'CheckOut trễ hơn 30 phút', 'TIME_BASED', b'1', 200000),
                                                                                           ('SV11', 'Trang Trí Phòng Lãng Mạn', 'OTHER', b'1', 300000),
                                                                                           ('SV12', 'Khác', 'OTHER', b'1', 200000),
+                                                                                          ('SV13', 'Trẻ em trên 12 tuổi', 'OTHER', b'1', 100000),
                                                                                           ('SV2', 'Snack', 'FOOD', b'1', 20000),
                                                                                           ('SV3', 'Socola', 'FOOD', b'1', 35000),
                                                                                           ('SV4', 'Kẹo', 'FOOD', b'1', 15000),
