@@ -27,7 +27,7 @@ public class RoomTypeService {
             String roomTypeName,
             Pageable pageable
     ) {
-        int convertedChildren = (int) Math.round(children / 3.0);
+        int convertedChildren = (int) Math.ceil(children / 3.0);
         int effectiveGuestCount = adults + convertedChildren;
 
         Page<RoomTypeAvailabilityDTO> page = roomTypeRepo.searchAvailableRoomTypes(

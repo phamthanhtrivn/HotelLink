@@ -27,7 +27,7 @@ public class RoomTypeController {
             @RequestParam int children,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime checkIn,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime checkOut,
-            @RequestParam(required = false) String roomType,
+            @RequestParam(required = false) String roomTypeName,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
@@ -38,7 +38,7 @@ public class RoomTypeController {
                         children,
                         checkIn,
                         checkOut,
-                        roomType,
+                        roomTypeName,
                         pageable
                 )
         );
