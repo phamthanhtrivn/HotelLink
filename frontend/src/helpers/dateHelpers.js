@@ -76,3 +76,15 @@ export const toLocalDate = (date) => {
 
   return `${y}-${m}-${d}`; 
 };
+
+export const withCheckInTime = (date) => {
+  const d = new Date(date);
+  d.setHours(14, 0, 0, 0);
+  return d;
+};
+
+export const withCheckOutTime = (date) => {
+  const d = new Date(date);
+  d.setHours(12, 0, 0, 0);
+  return d;
+};

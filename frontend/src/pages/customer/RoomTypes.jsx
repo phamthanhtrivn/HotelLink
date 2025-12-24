@@ -6,14 +6,12 @@ import RoomTypeSearchBar from "@/components/common/customer/RoomTypeSearchBar";
 import { roomTypeService } from "@/services/roomTypeService";
 import hotel from "../../assets/Hotel-1.jpg";
 import { useNavigate } from "react-router-dom";
-
-const tomorrow = new Date();
-tomorrow.setDate(tomorrow.getDate() + 1);
-
-const dateAfterTomorrow = new Date();
-dateAfterTomorrow.setDate(dateAfterTomorrow.getDate() + 2);
+import { useDispatch, useSelector } from "react-redux";
+import { setSearchRoomTypeFilters } from "@/store/roomTypeSearchSlice";
 
 const RoomTypes = () => {
+  const roomTypeFilter = useSelector((state) => state.roomTypeSearch);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const roomTypeSectionRef = useRef(null);
@@ -23,18 +21,18 @@ const RoomTypes = () => {
 
   const [dateRange, setDateRange] = useState([
     {
-      startDate: tomorrow,
-      endDate: dateAfterTomorrow,
+      startDate: new Date(roomTypeFilter.checkIn),
+      endDate: new Date(roomTypeFilter.checkOut),
       key: "selection",
     },
   ]);
-  const [adults, setAdults] = useState(2);
-  const [children, setChildren] = useState(0);
-  const [roomTypeName, setRoomTypeName] = useState("");
+  const [adults, setAdults] = useState(roomTypeFilter.adults);
+  const [children, setChildren] = useState(roomTypeFilter.children);
+  const [roomTypeName, setRoomTypeName] = useState(roomTypeFilter.roomTypeName);
 
   const buildSearchParams = () => ({
-    checkIn: formatISO(dateRange[0].startDate),
-    checkOut: formatISO(dateRange[0].endDate),
+    checkIn: dateRange[0].startDate,
+    checkOut: dateRange[0].endDate,
     adults,
     children,
     roomTypeName: roomTypeName === "All" ? "" : roomTypeName,
@@ -42,10 +40,21 @@ const RoomTypes = () => {
 
   const fetchRoomTypes = async (pageNumber = 0) => {
     setLoading(true);
+    const params = buildSearchParams();
     const res = await roomTypeService.fetchRoomTypes(
-      buildSearchParams(),
+      {
+        ...params,
+        checkIn: formatISO(params.checkIn),
+        checkOut: formatISO(params.checkOut),
+      },
       pageNumber
     );
+
+    dispatch(setSearchRoomTypeFilters({
+      ...params,
+      checkIn: formatISO(params.checkIn),
+      checkOut: formatISO(params.checkOut),
+    }));
 
     setRoomTypes(res.content || []);
     setTotalPages(res.totalPages || 0);

@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { withCheckInTime, withCheckOutTime } from "@/helpers/dateHelpers";
 
 const RoomTypeSearchBar = ({
   dateRange,
@@ -26,6 +27,8 @@ const RoomTypeSearchBar = ({
   setRoomTypeName,
   onSearch,
 }) => {
+  const startDate = new Date(dateRange[0].startDate);
+  const endDate = new Date(dateRange[0].endDate);
   const [openCalendar, setOpenCalendar] = useState(false);
   const calendarRef = useRef(null);
 
@@ -66,8 +69,8 @@ const RoomTypeSearchBar = ({
           className={`${fieldClass} justify-between cursor-pointer`}
         >
           <div className="font-medium text-gray-800">
-            {dateRange[0].startDate.toLocaleDateString("vi-VN")} –{" "}
-            {dateRange[0].endDate.toLocaleDateString("vi-VN")}
+            {startDate.toLocaleDateString("vi-VN")} -{" "}
+            {endDate.toLocaleDateString("vi-VN")}
           </div>
           <FaRegCalendarAlt className="text-gray-500" size={20} />
         </div>
@@ -83,7 +86,15 @@ const RoomTypeSearchBar = ({
           >
             <DateRange
               ranges={dateRange}
-              onChange={(item) => setDateRange([item.selection])}
+              onChange={(item) =>
+                setDateRange([
+                  {
+                    ...item.selection,
+                    startDate: withCheckInTime(item.selection.startDate),
+                    endDate: withCheckOutTime(item.selection.endDate),
+                  },
+                ])
+              }
               months={2}
               editableDateInputs
               direction="horizontal"
@@ -96,9 +107,7 @@ const RoomTypeSearchBar = ({
 
       {/* ADULTS */}
       <div>
-        <div className="text-xs text-gray-500 font-medium mb-1">
-          Người lớn
-        </div>
+        <div className="text-xs text-gray-500 font-medium mb-1">Người lớn</div>
         <div className={`${fieldClass} gap-2 justify-between px-3`}>
           <Button
             size="icon"
@@ -164,33 +173,44 @@ const RoomTypeSearchBar = ({
 
       {/* ROOM TYPE */}
       <div>
-        <div className="text-xs text-gray-500 font-medium mb-1">
-          Loại phòng
-        </div>
+        <div className="text-xs text-gray-500 font-medium mb-1">Loại phòng</div>
 
         <div className={`${fieldClass} gap-2 justify-between px-3`}>
           <Select value={roomTypeName} onValueChange={setRoomTypeName}>
-          <SelectTrigger
-            className="
+            <SelectTrigger
+              className="
               h-16 rounded-xl  px-4
               flex items-center
               border-none focus-visible:ring-0  
             "
-          >
-            <SelectValue className="cursor-pointer" placeholder="Chọn loại phòng" />
-          </SelectTrigger>
+            >
+              <SelectValue
+                className="cursor-pointer"
+                placeholder="Chọn loại phòng"
+              />
+            </SelectTrigger>
 
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Loại phòng</SelectLabel>
-              <SelectItem className="cursor-pointer" value="All">Tất cả</SelectItem>
-              <SelectItem className="cursor-pointer" value="Standard">Standard</SelectItem>
-              <SelectItem className="cursor-pointer" value="Deluxe">Deluxe</SelectItem>
-              <SelectItem className="cursor-pointer" value="Suite">Suite</SelectItem>
-              <SelectItem className="cursor-pointer" value="Family">Family</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Loại phòng</SelectLabel>
+                <SelectItem className="cursor-pointer" value="All">
+                  Tất cả
+                </SelectItem>
+                <SelectItem className="cursor-pointer" value="Standard">
+                  Standard
+                </SelectItem>
+                <SelectItem className="cursor-pointer" value="Deluxe">
+                  Deluxe
+                </SelectItem>
+                <SelectItem className="cursor-pointer" value="Suite">
+                  Suite
+                </SelectItem>
+                <SelectItem className="cursor-pointer" value="Family">
+                  Family
+                </SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
