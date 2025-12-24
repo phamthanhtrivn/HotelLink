@@ -7,7 +7,7 @@ import { roomTypeService } from "@/services/roomTypeService";
 import hotel from "../../assets/Hotel-1.jpg";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setSearchRoomTypeFilters } from "@/store/roomTypeSearchSlice";
+import { setFlow, setSearchRoomTypeFilters } from "@/store/roomTypeSearchSlice";
 
 const RoomTypes = () => {
   const roomTypeFilter = useSelector((state) => state.roomTypeSearch);
@@ -50,11 +50,13 @@ const RoomTypes = () => {
       pageNumber
     );
 
-    dispatch(setSearchRoomTypeFilters({
-      ...params,
-      checkIn: formatISO(params.checkIn),
-      checkOut: formatISO(params.checkOut),
-    }));
+    dispatch(
+      setSearchRoomTypeFilters({
+        ...params,
+        checkIn: formatISO(params.checkIn),
+        checkOut: formatISO(params.checkOut),
+      })
+    );
 
     setRoomTypes(res.content || []);
     setTotalPages(res.totalPages || 0);
@@ -67,6 +69,7 @@ const RoomTypes = () => {
   };
 
   const handleDetail = (roomTypeId) => {
+    dispatch(setFlow("DETAIL"));
     navigate(`/room-types/${roomTypeId}`);
   };
 
@@ -77,6 +80,10 @@ const RoomTypes = () => {
   useEffect(() => {
     fetchRoomTypes(page);
   }, [page]);
+
+  useEffect(() => {
+    dispatch(setFlow("LIST"));
+  }, []);
 
   return (
     <div className="min-h-screen bg-linear-to-b from-gray-50 to-gray-100">

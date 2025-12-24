@@ -16,15 +16,25 @@ const RoomTypeCard = ({ roomType, onDetail }) => {
           transition hover:shadow-2xl
         "
       >
-        {/* IMAGE – mobile first */}
-        <div className="relative w-full lg:w-2/3 h-65 sm:h-90 lg:h-auto">
+        {/* IMAGE */}
+        <div
+          className="
+            relative
+            w-full lg:w-2/3
+            aspect-4/3
+            sm:aspect-16/10
+            lg:aspect-auto
+            lg:h-full
+            min-h-60
+          "
+        >
           <RoomTypePicturesSlider
             images={roomType?.pictures || []}
             visibleCount={1}
           />
 
           {roomType.availableRooms <= 3 && (
-            <div className="absolute top-4 left-4 bg-(--color-primary) font-bold text-xl text-(--color-background) px-4 py-1.5 rounded-full backdrop-blur">
+            <div className="absolute top-4 left-4 bg-(--color-primary) font-bold text-sm sm:text-base text-(--color-background) px-3 py-1.5 rounded-full backdrop-blur">
               Chỉ còn {roomType.availableRooms} phòng
             </div>
           )}
@@ -35,7 +45,7 @@ const RoomTypeCard = ({ roomType, onDetail }) => {
           onClick={() => onDetail(roomType.id)}
           className="
             w-full lg:w-1/3
-            p-6 sm:p-8 lg:p-10
+            p-5 sm:p-6 lg:p-10
             flex flex-col justify-between
             cursor-pointer
             bg-(--color-primary)
@@ -45,12 +55,14 @@ const RoomTypeCard = ({ roomType, onDetail }) => {
           <div className="space-y-5">
             {/* TITLE */}
             <div>
-              <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold tracking-tight">
                 {roomType.name}
               </h2>
-              <p className="text-white/60 uppercase text-sm mt-10">
+
+              <p className="text-white/60 uppercase text-sm mt-6">
                 Giá mỗi đêm
               </p>
+
               <p className="text-2xl sm:text-3xl mt-1 text-(--color-background) font-bold">
                 {formatVND(roomType.price)}
               </p>

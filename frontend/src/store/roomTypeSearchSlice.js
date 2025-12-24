@@ -3,11 +3,11 @@ import { formatISO } from "date-fns";
 
 const tomorrow = new Date();
 tomorrow.setDate(tomorrow.getDate() + 1);
-tomorrow.setHours(14, 0, 0, 0)
+tomorrow.setHours(14, 0, 0, 0);
 
 const dateAfterTomorrow = new Date();
 dateAfterTomorrow.setDate(dateAfterTomorrow.getDate() + 2);
-dateAfterTomorrow.setHours(12, 0, 0, 0)
+dateAfterTomorrow.setHours(12, 0, 0, 0);
 
 const initialState = {
   checkIn: formatISO(tomorrow),
@@ -15,7 +15,8 @@ const initialState = {
   adults: 2,
   children: 0,
   roomTypeName: "",
-}
+  flow: "IDLE", // IDLE | LIST | DETAIL | BOOKING
+};
 
 export const roomTypeSearchSlice = createSlice({
   name: "roomTypeSearch",
@@ -24,10 +25,14 @@ export const roomTypeSearchSlice = createSlice({
     setSearchRoomTypeFilters: (state, action) => {
       return { ...state, ...action.payload };
     },
+    setFlow: (state, action) => {
+      state.flow = action.payload;
+    },
     resetSearchRoomTypeFilters: () => initialState,
-  }
-})
+  },
+});
 
-export const { setSearchRoomTypeFilters, resetSearchRoomTypeFilters } = roomTypeSearchSlice.actions;
+export const { setSearchRoomTypeFilters, setFlow, resetSearchRoomTypeFilters } =
+  roomTypeSearchSlice.actions;
 
 export default roomTypeSearchSlice.reducer;

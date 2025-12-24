@@ -34,7 +34,7 @@ public class ReviewService {
     public APIResponse<List<Review>> getReviewsByRoomType(String roomTypeId) {
         List<Review> reviews = reviewRepo.findReviewsByRoomTypeOrderByCreatedAtDesc(roomTypeId);
         if (reviews.isEmpty()) {
-            return new APIResponse<>(false, HTTPResponse.SC_OK, "Không có đánh giá cho loại phòng này", null);
+            return new APIResponse<>(true, HTTPResponse.SC_OK, "Không có đánh giá cho loại phòng này", reviews);
         }
         else {
             return new APIResponse<>(true, HTTPResponse.SC_OK, "Lấy đánh giá thành công", reviews);

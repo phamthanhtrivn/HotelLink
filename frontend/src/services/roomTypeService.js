@@ -18,4 +18,8 @@ export const roomTypeService = {
     );
     return res.data;
   },
+  getRoomTypeById: async (id) => {
+    const res = await api.get(`${baseUrl}/api/public/room-types/${id}`);
+    return res.data;
+  }
 };
