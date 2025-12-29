@@ -16,9 +16,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AuthContext } from "@/context/AuthContext";
 import { authService } from "@/services/authService";
-import { baseUrl } from "@/constants/constants";
 
 const Login = () => {
+  const baseUrl = import.meta.env.VITE_BASE_API_URL;
   const { user, login } = useContext(AuthContext);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);

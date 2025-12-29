@@ -28,7 +28,6 @@ public class Booking {
             regexp = "^(?:[A-ZÀ-Ỹ][a-zà-ỹ]*)(?:\\s+[A-ZÀ-Ỹ][a-zà-ỹ]*)+$",
             message = "Viết hoa mỗi chữ cái đầu, ít nhất 2 từ gồm họ và tên"
     )
-    private String fullName;
     private String contactName;
     @NotBlank(message = "Số điện thoại không được để trống")
     @Pattern(
@@ -36,7 +35,8 @@ public class Booking {
             message = "Số điện thoại không hợp lệ"
     )
     private String contactPhone;
-    @Email
+    @NotBlank(message = "Email không được để trống")
+    @Email(message = "Email không hợp lệ")
     private String contactEmail;
     @ManyToOne
     @JoinColumn(name = "room_id")
@@ -70,8 +70,8 @@ public class Booking {
     @PositiveOrZero(message = "Dịch vụ bổ sung phải lớn hơn hoặc bằng 0")
     private double extraServices;
     private boolean paid;
-    @Positive(message = "Tổng tiền phải lớn hơn 0")
+    @PositiveOrZero(message = "Tổng tiền phải lớn hơn hoặc bằng 0")
     private double total;
-    @Positive(message = "Tổng tiền thanh toán phải lớn hơn 0")
+    @PositiveOrZero(message = "Tổng tiền thanh toán phải lớn hơn hoặc bằng 0")
     private double totalPayment;
 }

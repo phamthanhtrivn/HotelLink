@@ -1,44 +1,33 @@
-export const calculateNights = (checkIn, checkOut) => {
-  if (!checkIn || !checkOut) return 0;
-  
-  const start = new Date(checkIn);
-  const end = new Date(checkOut);
-  
-  if (end <= start) return 0;
-  
-  const timeDiff = end.getTime() - start.getTime();
-  const nights = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-  
-  return nights;
+export const formatDateTimeForCustomer = (isoString) => {
+  if (!isoString) return "";
+
+  const date = new Date(isoString);
+
+  return date.toLocaleString("vi-VN", {
+    weekday: "long",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
 };
 
-export const formatVietnameseDate = (date) => {
-  if (!date) return '';
-  
-  const inputDate = new Date(date);
-  
-  if (isNaN(inputDate.getTime())) {
-    return 'Ngày không hợp lệ';
-  }
+export const calcStayNights = (checkInISO, checkOutISO) => {
+  if (!checkInISO || !checkOutISO) return 0;
 
-  const day = inputDate.getDate();
-  const month = inputDate.getMonth() + 1; // 0-11 → 1-12
-  const dayOfWeek = inputDate.getDay(); // 0-6 (Chủ nhật = 0)
+  const checkIn = new Date(checkInISO);
+  const checkOut = new Date(checkOutISO);
 
-  // Map tháng sang tiếng Việt
-  const monthNames = {
-    1: 'Tháng 1', 2: 'Tháng 2', 3: 'Tháng 3', 4: 'Tháng 4',
-    5: 'Tháng 5', 6: 'Tháng 6', 7: 'Tháng 7', 8: 'Tháng 8',
-    9: 'Tháng 9', 10: 'Tháng 10', 11: 'Tháng 11', 12: 'Tháng 12'
-  };
+  // reset giờ để tránh lệch do timezone / giờ check-in
+  checkIn.setHours(0, 0, 0, 0);
+  checkOut.setHours(0, 0, 0, 0);
 
-  // Map thứ trong tuần
-  const dayNames = {
-    0: 'Chủ nhật', 1: 'Thứ hai', 2: 'Thứ ba', 3: 'Thứ tư',
-    4: 'Thứ năm', 5: 'Thứ sáu', 6: 'Thứ bảy'
-  };
+  const diffTime = checkOut - checkIn;
+  const nights = diffTime / (1000 * 60 * 60 * 24);
 
-  return {day: day, month: monthNames[month],dayName: dayNames[dayOfWeek]};
+  return Math.max(nights, 0);
 };
 
 export const timeAgo = (dateString) => {
@@ -67,14 +56,6 @@ export const timeAgo = (dateString) => {
   }
   
   return 'Vừa xong';
-};
-
-export const toLocalDate = (date) => {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-
-  return `${y}-${m}-${d}`; 
 };
 
 export const withCheckInTime = (date) => {

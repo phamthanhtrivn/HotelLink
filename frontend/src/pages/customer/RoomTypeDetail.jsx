@@ -16,7 +16,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setFlow } from "@/store/roomTypeSearchSlice";
 
 const RoomTypeDetail = () => {
   const { id } = useParams();
@@ -30,6 +31,7 @@ const RoomTypeDetail = () => {
   const [pageSize] = useState(5);
   const [scoreRange, setScoreRange] = useState("ALL");
   const { flow } = useSelector((state) => state.roomTypeSearch);
+  const dispatch = useDispatch();
 
   const fetchRoomType = async () => {
     try {
@@ -96,8 +98,13 @@ const RoomTypeDetail = () => {
     return (total / reviews.length).toFixed(1);
   }, [reviews]);
 
+  const handleNavigateBooking = () => {
+    dispatch(setFlow("BOOKING"));
+    navigate("/booking", { state: { roomTypeId: id } });
+  };
+
   useEffect(() => {
-    if (flow !== "DETAIL") {
+    if (flow === "IDLE") {
       navigate("/room-types", { replace: true });
     }
   }, [flow]);
@@ -268,7 +275,10 @@ const RoomTypeDetail = () => {
               <p>Trẻ em dưới 12 tuổi có thể ở chung không cần giường riêng</p>
               <p>Diện tích: {roomType.area} m²</p>
             </div>
-            <Button className="w-full py-4 rounded-xl text-white font-semibold cursor-pointer bg-(--color-primary) hover:bg-[#2a4b70]">
+            <Button
+              onClick={handleNavigateBooking}
+              className="w-full py-4 rounded-xl text-white font-semibold cursor-pointer bg-(--color-primary) hover:bg-[#2a4b70]"
+            >
               Đặt phòng ngay
             </Button>
           </div>

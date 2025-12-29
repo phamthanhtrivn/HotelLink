@@ -16,9 +16,9 @@ import { AuthContext } from "@/context/AuthContext";
 import { toast } from "react-toastify";
 import { Loader2 } from "lucide-react";
 import { authService } from "@/services/authService";
-import { baseUrl } from "@/constants/constants";
 
 const ForgotPassword = () => {
+  const baseUrl = import.meta.env.VITE_BASE_API_URL;
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [email, setEmail] = useState("");

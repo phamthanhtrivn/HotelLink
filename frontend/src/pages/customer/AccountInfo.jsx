@@ -8,9 +8,11 @@ import { AuthContext } from "@/context/AuthContext";
 import { customerService } from "@/services/customerService";
 import { Label } from "@/components/ui/Label";
 import { Link } from "react-router-dom";
+import PointsPolicyModal from "@/components/common/customer/PointsPolicyModal";
 
 const AccountInfo = () => {
   const { user, setUser } = useContext(AuthContext);
+  const [openPolicy, setOpenPolicy] = useState(false);
 
   const [loading, setIsLoading] = useState(false);
   const [acc, setAcc] = useState(null);
@@ -31,7 +33,7 @@ const AccountInfo = () => {
   const handleFetchUser = async () => {
     try {
       const res = await customerService.getCustomerById(user.userId);
-      
+
       if (res?.success) {
         setAcc(res.data);
         setUpdateInfoData({
@@ -61,7 +63,11 @@ const AccountInfo = () => {
       if (res.success) {
         toast.success(res.message);
         setAcc(res.data);
-        setUser({ ...user, fullName: res.data.fullName, phone: res.data.phone });
+        setUser({
+          ...user,
+          fullName: res.data.fullName,
+          phone: res.data.phone,
+        });
       } else {
         const newErrors = {
           fullName: res?.data?.fullName || "",
@@ -189,15 +195,17 @@ const AccountInfo = () => {
                 <Info size={22} className="text-(--color-background) mt-0.5" />
                 <p className="text-sm text-(--color-primary)">
                   Điểm tích lũy có thể được sử dụng để giảm giá tiền đặt phòng.
-                  <Link
-                    to="/points-policy"
-                    className="block mt-1 font-semibold underline hover:text-(--color-background)"
+                  <p
+                    onClick={() => setOpenPolicy(true)}
+                    className="block mt-1 font-semibold underline hover:text-(--color-background) hover:cursor-pointer"
                   >
                     Xem chính sách sử dụng điểm
-                  </Link>
+                  </p>
                 </p>
               </div>
             </div>
+
+            <PointsPolicyModal open={openPolicy} onOpenChange={setOpenPolicy} />
 
             {/* Button */}
             <div className="pt-4 md:pt-6">

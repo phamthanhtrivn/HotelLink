@@ -1,5 +1,6 @@
 package iuh.fit.backend.util;
 
+import iuh.fit.backend.repository.BookingRepo;
 import iuh.fit.backend.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -10,6 +11,7 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class IdUtil {
     private final UserRepo userRepo;
+    private final BookingRepo bookingRepo;
 
     private String randomCode(int length) {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -27,6 +29,14 @@ public class IdUtil {
         do {
             code = "US" + randomCode(10);
         } while (userRepo.existsUserById(code));
+        return code;
+    }
+
+    public String generateUniqueCodeForBooking() {
+        String code;
+        do {
+            code = "BK" + randomCode(10);
+        } while (bookingRepo.existsBookingsById(code));
         return code;
     }
 }

@@ -17,9 +17,9 @@ import { toast } from "react-toastify";
 import { Loader2 } from "lucide-react";
 import { AuthContext } from "@/context/AuthContext";
 import { authService } from "@/services/authService";
-import { baseUrl } from "@/constants/constants";
 
 const Register = () => {
+  const baseUrl = import.meta.env.VITE_BASE_API_URL;
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [name, setName] = useState("");

@@ -1,9 +1,10 @@
 package iuh.fit.backend.security.jwt;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import iuh.fit.backend.entity.User;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -21,10 +22,9 @@ public class JwtService {
     private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24; // 24h
     private static final long RESET_TOKEN_EXPIRATION  = 1000 * 60 * 15;      // 15 phút
 
-    public JwtService() {
-        String key = Dotenv.load().get("JWT_SECRET");
+    public JwtService(@Value("${jwt.secret}") String jwtSecret) {
         this.SECRET_KEY = Keys.hmacShaKeyFor(
-                key.getBytes(StandardCharsets.UTF_8)
+                jwtSecret.getBytes(StandardCharsets.UTF_8)
         );
     }
 

@@ -1,4 +1,3 @@
-import { baseUrl } from "@/constants/constants";
 import api from "./api";
 
 export const roomTypeService = {
@@ -13,13 +12,11 @@ export const roomTypeService = {
       size: size,
     }).toString();
 
-    const res = await api.get(
-      `${baseUrl}/api/public/room-types/search?${query}`
-    );
+    const res = await api.get(`/public/room-types/search?${query}`);
     return res.data;
   },
   getRoomTypeById: async (id) => {
-    const res = await api.get(`${baseUrl}/api/public/room-types/${id}`);
+    const res = await api.get(`/public/room-types/${id}`);
     return res.data;
-  }
+  },
 };

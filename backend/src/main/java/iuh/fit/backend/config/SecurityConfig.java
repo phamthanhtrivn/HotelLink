@@ -1,11 +1,11 @@
 package iuh.fit.backend.config;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import iuh.fit.backend.security.jwt.JwtAuthenticationFilter;
 import iuh.fit.backend.security.oauth2.CustomOAuth2UserService;
 import iuh.fit.backend.security.oauth2.OAuth2SuccessHandler;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -26,7 +26,9 @@ import java.util.List;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final String frontendUrl = Dotenv.load().get("FRONTEND_URL");
+
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
@@ -44,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/public/**",
                                 "/api/auth/**",
+                                "/api/payments/**",
                                 "/oauth2/**"
                         ).permitAll()
 

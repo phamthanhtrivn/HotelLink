@@ -13,6 +13,8 @@ import iuh.fit.backend.repository.UserRepo;
 import iuh.fit.backend.security.jwt.JwtService;
 import iuh.fit.backend.util.IdUtil;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -35,7 +37,8 @@ public class AuthService {
     private final UserRepo userRepo;
     private final CustomerRepo customerRepo;
     private final PersonRepo personRepo;
-    private final String frontendUrl = Dotenv.load().get("FRONTEND_URL");
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
     private final EmailService emailService;
 
     @Transactional
