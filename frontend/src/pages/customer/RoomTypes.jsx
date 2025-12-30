@@ -74,8 +74,19 @@ const RoomTypes = () => {
   };
 
   useEffect(() => {
-    fetchRoomTypes(0);
-  }, []);
+    const timeout = setTimeout(() => {
+      setPage(0);
+      fetchRoomTypes(0);
+    }, 400);
+
+    return () => clearTimeout(timeout);
+  }, [
+    dateRange[0].startDate,
+    dateRange[0].endDate,
+    adults,
+    children,
+    roomTypeName,
+  ]);
 
   useEffect(() => {
     fetchRoomTypes(page);

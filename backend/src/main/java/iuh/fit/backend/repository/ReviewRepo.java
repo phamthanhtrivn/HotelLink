@@ -1,5 +1,6 @@
 package iuh.fit.backend.repository;
 
+import iuh.fit.backend.entity.Booking;
 import iuh.fit.backend.entity.Review;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -26,6 +27,11 @@ public interface ReviewRepo extends JpaRepository<Review, String> {
             "JOIN FETCH b.room ro " +
             "JOIN FETCH ro.roomType rt " +
             "WHERE rt.id = :roomTypeId " +
+            "AND r.status = true " +
             "ORDER BY r.createdAt DESC")
     List<Review> findReviewsByRoomTypeOrderByCreatedAtDesc(String roomTypeId);
+
+    boolean existsReviewsById(String id);
+
+    Review findByBooking(Booking booking);
 }

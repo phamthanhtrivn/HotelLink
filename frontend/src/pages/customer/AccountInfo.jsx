@@ -195,12 +195,12 @@ const AccountInfo = () => {
                 <Info size={22} className="text-(--color-background) mt-0.5" />
                 <p className="text-sm text-(--color-primary)">
                   Điểm tích lũy có thể được sử dụng để giảm giá tiền đặt phòng.
-                  <p
+                  <span
                     onClick={() => setOpenPolicy(true)}
                     className="block mt-1 font-semibold underline hover:text-(--color-background) hover:cursor-pointer"
                   >
                     Xem chính sách sử dụng điểm
-                  </p>
+                  </span>
                 </p>
               </div>
             </div>

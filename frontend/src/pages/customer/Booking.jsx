@@ -300,6 +300,7 @@ const Booking = () => {
 
               <div className="flex justify-end">
                 <Button
+                  disabled={isLoading}
                   onClick={handleBooking}
                   className="cursor-pointer px-14 py-6 rounded-2xl bg-(--color-primary) shadow-xl hover:bg-[#2a4b70] transition"
                 >

@@ -70,7 +70,7 @@ const PaymentSuccess = () => {
         </div>
         {user ? (
           <Button
-            onClick={() => navigate("/account/booking-history")}
+            onClick={() => navigate("/member/booking-history")}
             className="w-full bg-[#1E2A38] hover:bg-[#2B3B4E] cursor-pointer"
           >
             Xem lịch sử đơn đặt phòng

@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PutMapping;
+
 
 
 @RestController
@@ -30,6 +31,12 @@ public class BookingController {
     @GetMapping("/{bookingId}")
     public ResponseEntity<APIResponse<?>> getBookingById(@PathVariable String bookingId) {
         APIResponse<?> response = bookingService.getBookingById(bookingId);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @PutMapping("/{bookingId}")
+    public ResponseEntity<APIResponse<?>> cancelBookingByCustomer(@PathVariable String bookingId) {
+        APIResponse<?> response = bookingService.cancelBookingByCustomer(bookingId);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
     

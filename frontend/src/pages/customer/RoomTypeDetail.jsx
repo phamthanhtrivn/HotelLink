@@ -226,14 +226,51 @@ const RoomTypeDetail = () => {
 
             <div className="space-y-4">
               {pagedReviews.map((r) => (
-                <div key={r.id} className="border rounded-xl p-4 bg-white">
-                  <div className="flex justify-between mb-1">
-                    <span className="font-medium">{r.customer?.fullName}</span>
-                    <span className="font-semibold text-(--color-background)">
-                      {calcAvgScore(r)}/10
-                    </span>
+                <div
+                  key={r.id}
+                  className="
+                    bg-white
+                    border border-gray-200
+                    rounded-2xl
+                    p-5
+                    shadow-sm
+                    hover:shadow-md
+                    transition
+                  "
+                >
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <p className="font-semibold text-gray-800">
+                        {r.customer?.fullName}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {new Date(r.createdAt).toLocaleDateString("vi-VN")}
+                      </p>
+                    </div>
+
+                    {/* Score */}
+                    <div
+                      className="
+                        flex items-center justify-center
+                        w-11 h-11
+                        rounded-full
+                        bg-emerald-100
+                        text-emerald-700
+                        font-bold
+                        text-sm
+                      "
+                    >
+                      {calcAvgScore(r)}
+                    </div>
                   </div>
-                  <p className="text-sm text-gray-600">{r.comments}</p>
+
+                  {/* Comment */}
+                  {r.comments && (
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      {r.comments}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>

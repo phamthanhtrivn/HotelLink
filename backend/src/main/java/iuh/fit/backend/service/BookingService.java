@@ -8,10 +8,16 @@ import iuh.fit.backend.repository.BookingRepo;
 import iuh.fit.backend.repository.CustomerRepo;
 import iuh.fit.backend.repository.UserRepo;
 import iuh.fit.backend.util.IdUtil;
+import iuh.fit.backend.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.AccessDeniedException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -67,6 +73,11 @@ public class BookingService {
             if (customerOpt.isPresent() && userOpt.isPresent()) {
                 booking.setCustomer(customerOpt.get());
                 booking.setCreatedBy(userOpt.get());
+                if (request.getPointDiscount() > 0) {
+                    Customer customer = customerOpt.get();
+                    customer.setPoints(customer.getPoints() - 10);
+                    customerRepo.save(customer);
+                }
             } else {
                 response.setSuccess(false);
                 response.setStatus(HTTPResponse.SC_BAD_REQUEST);
@@ -89,7 +100,7 @@ public class BookingService {
         else {
             emailService.sendPaymentReminderEmail(saveBooking.getContactEmail(), saveBooking.getId());
         }
-        
+
         response.setSuccess(true);
         response.setMessage("Đặt phòng thành công.");
         response.setStatus(HTTPResponse.SC_OK);
@@ -191,6 +202,88 @@ public class BookingService {
             }
             
         }
+    }
+
+    public APIResponse<Page<Booking>> getBookingByCustomer(
+        String customerId,
+        BookingStatus status,
+        Pageable pageable
+    ) throws AccessDeniedException {
+
+        APIResponse<Page<Booking>> response = new APIResponse<>();
+        response.setSuccess(false);
+        response.setData(null);
+
+        String currentUserId = SecurityUtil.getCurrentUserId();
+        if (!currentUserId.equals(customerId)) {
+            response.setStatus(HTTPResponse.SC_UNAUTHORIZED);
+            response.setMessage("Chưa đăng nhập");
+            return response;
+        }
+
+        Optional<Customer> customerOpt = customerRepo.findById(customerId);
+        if (customerOpt.isEmpty()) {
+            response.setStatus(HTTPResponse.SC_NOT_FOUND);
+            response.setMessage("Không tồn tại người dùng này");
+            return response;
+        }
+
+        Page<Booking> bookings;
+
+        if (status == null) {
+            // Không filter → lấy tất cả
+            bookings = bookingRepo.findByCustomer(customerOpt.get(), pageable);
+        } else {
+            // Có filter theo trạng thái
+            bookings = bookingRepo.findByCustomerAndBookingStatus(
+                    customerOpt.get(),
+                    status,
+                    pageable
+            );
+        }
+
+        response.setSuccess(true);
+        response.setStatus(HTTPResponse.SC_OK);
+        response.setMessage("Lấy danh sách đơn đặt phòng thành công!");
+        response.setData(bookings);
+
+        return response;
+    }
+
+    public APIResponse<Booking> cancelBookingByCustomer(String bookingId) {
+        APIResponse<Booking> response = new APIResponse<>();
+        response.setSuccess(false);
+        response.setData(null);
+        
+        Optional<Booking> bookingOpt = bookingRepo.findById(bookingId);
+        if (bookingOpt.isEmpty()) {
+            response.setStatus(HTTPResponse.SC_NOT_FOUND);
+            response.setMessage("Không tìm thấy đơn đặt phòng");
+            return response;
+        }
+
+        Booking booking = bookingOpt.get();
+
+        LocalDateTime now = LocalDateTime.now();
+        long hoursUtilCheckIn = Duration.between(now, booking.getCheckIn()).toHours();
+
+        if (hoursUtilCheckIn <= 24) {
+            response.setStatus(HTTPResponse.SC_BAD_REQUEST);
+            response.setMessage("Không thể hủy đặt phòng trong vòng 24 giờ trước giờ checkIn");
+            return response;
+        }
+
+        booking.setBookingStatus(BookingStatus.CANCELLED);
+        booking.setUpdatedAt(now);
+        booking.setUpdatedBy(booking.getCreatedBy());
+        Booking savedBooking = bookingRepo.save(booking);
+
+        response.setSuccess(true);
+        response.setMessage("Hủy đặt phòng thành công");
+        response.setStatus(HTTPResponse.SC_OK);
+        response.setData(savedBooking);
+
+        return response;
     }
 
 }
