@@ -1,4 +1,4 @@
-package iuh.fit.backend.controller.customer;
+package iuh.fit.backend.controller.member;
 
 import iuh.fit.backend.dto.APIResponse;
 import iuh.fit.backend.entity.BookingStatus;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/member/bookings")
-public class Customer_BookingController {
+public class Member_BookingController {
     private final BookingService bookingService;
 
     @GetMapping("/customer-total/{customerId}")

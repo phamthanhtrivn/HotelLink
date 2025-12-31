@@ -26,7 +26,6 @@ ALTER DATABASE hotelbooking
 -- Dumping structure for table hotellink.amenities
 CREATE TABLE IF NOT EXISTS `amenities` (
                                            `amenity_id` varchar(255) NOT NULL,
-                                           `icon` varchar(255) DEFAULT NULL,
                                            `name` varchar(255) DEFAULT NULL,
                                            `amenity_type_id` varchar(255) DEFAULT NULL,
                                            PRIMARY KEY (`amenity_id`),
@@ -35,27 +34,27 @@ CREATE TABLE IF NOT EXISTS `amenities` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 -- Dumping data for table hotellink.amenities: ~20 rows (approximately)
-INSERT INTO `amenities` (`amenity_id`, `icon`, `name`, `amenity_type_id`) VALUES
-                                                                              ('AM1', 'tv', 'TV màn hình phẳng', 'AT1'),
-                                                                              ('AM10', 'shield', 'Két an toàn', 'AT5'),
-                                                                              ('AM11', 'utensils', 'Bàn ăn / Bếp nhỏ', 'AT5'),
-                                                                              ('AM12', 'hang', 'Móc quần áo', 'AT5'),
-                                                                              ('AM13', 'frigde', 'Tủ lạnh', 'AT5'),
-                                                                              ('AM14', 'shirt', 'Tủ quần áo lớn', 'AT5'),
-                                                                              ('AM15', 'table', 'Bàn làm việc', 'AT5'),
-                                                                              ('AM16', 'balcony', 'Ban công', 'AT6'),
-                                                                              ('AM17', 'martini', 'Mini bar cao cấp', 'AT7'),
-                                                                              ('AM18', 'mute', 'Phòng cách âm', 'AT7'),
-                                                                              ('AM19', 'martini', 'Minibar', 'AT7'),
-                                                                              ('AM2', 'wifi', 'Wifi miễn phí', 'AT2'),
-                                                                              ('AM20', 'bell', 'Dịch vụ phòng 24/7', 'AT7'),
-                                                                              ('AM3', 'phone', 'Điện thoại', 'AT2'),
-                                                                              ('AM4', 'hair-dryer', 'Máy sấy tóc', 'AT3'),
-                                                                              ('AM5', 'snowflake', 'Điều hòa', 'AT3'),
-                                                                              ('AM6', 'jacuzzi', 'Bồn tắm jacuzzi', 'AT4'),
-                                                                              ('AM7', 'shower', 'Phòng tắm vòi sen', 'AT4'),
-                                                                              ('AM8', 'bath-tub', 'Bồn tắm', 'AT4'),
-                                                                              ('AM9', 'sofa', 'Sofa thư giãn', 'AT5');
+INSERT INTO `amenities` (`amenity_id`, `name`, `amenity_type_id`) VALUES
+                                                                              ('AM1', 'TV màn hình phẳng', 'AT1'),
+                                                                              ('AM10', 'Két an toàn', 'AT5'),
+                                                                              ('AM11', 'Bàn ăn / Bếp nhỏ', 'AT5'),
+                                                                              ('AM12', 'Móc quần áo', 'AT5'),
+                                                                              ('AM13', 'Tủ lạnh', 'AT5'),
+                                                                              ('AM14', 'Tủ quần áo lớn', 'AT5'),
+                                                                              ('AM15', 'Bàn làm việc', 'AT5'),
+                                                                              ('AM16', 'Ban công', 'AT6'),
+                                                                              ('AM17', 'Mini bar cao cấp', 'AT7'),
+                                                                              ('AM18', 'Phòng cách âm', 'AT7'),
+                                                                              ('AM19', 'Minibar', 'AT7'),
+                                                                              ('AM2', 'Wifi miễn phí', 'AT2'),
+                                                                              ('AM20', 'Dịch vụ phòng 24/7', 'AT7'),
+                                                                              ('AM3', 'Điện thoại', 'AT2'),
+                                                                              ('AM4', 'Máy sấy tóc', 'AT3'),
+                                                                              ('AM5', 'Điều hòa', 'AT3'),
+                                                                              ('AM6', 'Bồn tắm jacuzzi', 'AT4'),
+                                                                              ('AM7', 'Phòng tắm vòi sen', 'AT4'),
+                                                                              ('AM8', 'Bồn tắm', 'AT4'),
+                                                                              ('AM9', 'Sofa thư giãn', 'AT5');
 
 -- Dumping structure for table hotellink.amenity_details
 CREATE TABLE IF NOT EXISTS `amenity_details` (
@@ -527,6 +526,8 @@ CREATE TABLE IF NOT EXISTS `staffs` (
                                         `date_of_birth` date DEFAULT NULL,
                                         `gender` enum('FEMALE','MALE','OTHER') DEFAULT NULL,
                                         `user_id` varchar(255) NOT NULL,
+                                        `identification_id` varchar(255) NOT NULL,
+                                        UNIQUE KEY `UKyo93pema27hkgfnkdfhjcnbdy` (`identification_id`),
                                         PRIMARY KEY (`user_id`),
                                         CONSTRAINT `FKqcf5oyocd82uqx16vdbe65hs5` FOREIGN KEY (`user_id`) REFERENCES `persons` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;

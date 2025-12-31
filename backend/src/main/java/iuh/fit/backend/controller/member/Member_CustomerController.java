@@ -1,4 +1,4 @@
-package iuh.fit.backend.controller.customer;
+package iuh.fit.backend.controller.member;
 
 import iuh.fit.backend.dto.APIResponse;
 import iuh.fit.backend.dto.CustomerResponse;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/member/customers")
-public class CustomerController {
+public class Member_CustomerController {
     private final CustomerService customerService;
 
     @GetMapping("/{id}")

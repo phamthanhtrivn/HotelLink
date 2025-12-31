@@ -1,5 +1,6 @@
 package iuh.fit.backend.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -22,4 +23,6 @@ public class Staff extends Person {
     @Enumerated(EnumType.STRING)
     private Gender gender;
     private LocalDate dateOfBirth;
+    @Column(unique = true)
+    private String identificationId;
 }

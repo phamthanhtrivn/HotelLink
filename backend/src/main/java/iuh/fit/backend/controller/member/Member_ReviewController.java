@@ -1,4 +1,4 @@
-package iuh.fit.backend.controller.customer;
+package iuh.fit.backend.controller.member;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/member/reviews")
-public class Customer_ReviewController {
+public class Member_ReviewController {
     private final ReviewService reviewService;
 
     @PostMapping("/customer/{customerId}/booking/{bookingId}")
