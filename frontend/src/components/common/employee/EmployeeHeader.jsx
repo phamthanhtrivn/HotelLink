@@ -1,4 +1,3 @@
-import { AuthContext } from "@/context/AuthContext";
 import React, { useEffect, useState } from "react";
 
 const EmployeeHeader = ({ user }) => {

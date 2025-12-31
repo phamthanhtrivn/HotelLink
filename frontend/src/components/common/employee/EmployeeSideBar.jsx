@@ -26,12 +26,14 @@ import { personService } from "@/services/personService";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import AdminProfileModal from "./AdminProfileModal";
+import { useNavigate } from "react-router-dom";
 
 const AdminSidebar = ({ user, setUser, logout }) => {
   const menuByRole = {
     ADMIN: itemsAdminMenu,
     STAFF: itemsStaffMenu,
   };
+  const navigate = useNavigate();
   const [openProfile, setOpenProfile] = useState(false);
   const [infor, setInfor] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -75,6 +77,11 @@ const AdminSidebar = ({ user, setUser, logout }) => {
     }).then((result) => {
       if (result.isConfirmed) {
         logout();
+        navigate("/");
+        Swal.fire({
+          title: "Đăng xuất thành công!",
+          icon: "success",
+        });
       }
     });
   };

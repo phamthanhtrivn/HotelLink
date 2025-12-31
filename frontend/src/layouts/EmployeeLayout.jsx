@@ -9,10 +9,10 @@ export default function EmployeeLayout() {
   const { user, setUser, logout } = useContext(AuthContext)
   return (
     <SidebarProvider className="flex h-screen">
-      <EmployeeSideBar user={user} setUser={setUser} />
+      <EmployeeSideBar user={user} setUser={setUser} logout={logout} />
 
       <div className="flex flex-col flex-1 overflow-hidden">
-        <EmployeeHeader user={user} logout={logout} />
+        <EmployeeHeader user={user} />
 
         <main className="flex-1 overflow-y-auto">
           {/* <SidebarTrigger /> */}

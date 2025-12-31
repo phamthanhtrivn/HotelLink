@@ -34,6 +34,7 @@ import NotFound from "./pages/NotFound";
 const App = () => {
   return (
     <Routes>
+      <Route path="reset-password" element={<ResetPassword />} />
       {/* GUEST */}
       <Route
         element={
@@ -47,7 +48,6 @@ const App = () => {
         <Route path="oauth2/success" element={<OAuth2Success />} />
         <Route path="register" element={<Register />} />
         <Route path="forgot-password" element={<ForgotPassword />} />
-        <Route path="reset-password" element={<ResetPassword />} />
         <Route path="room-types" element={<RoomTypes />} />
         <Route path="room-types/:id" element={<RoomTypeDetail />} />
         <Route path="booking" element={<Booking />} />
