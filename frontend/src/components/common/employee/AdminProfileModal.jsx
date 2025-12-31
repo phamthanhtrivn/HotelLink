@@ -24,7 +24,6 @@ const AdminProfileModal = ({
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [processing, setProcessing] = useState(false);
-  const [processingPassword, setProcessingPassword] = useState(false);
 
   const handleChangeInfo = async () => {
     setProcessing(true);
@@ -55,18 +54,6 @@ const AdminProfileModal = ({
       toast.error("Lỗi khi thay đổi thông tin");
     } finally {
       setProcessing(false);
-    }
-  };
-
-  const handleChangePassword = async () => {
-    setProcessingPassword(true);
-    try {
-      console.log("change password");
-    } catch (error) {
-      console.log(error);
-      toast.error("Lỗi khi thay đổi mật khẩu");
-    } finally {
-      setProcessingPassword(false);
     }
   };
 
@@ -126,19 +113,6 @@ const AdminProfileModal = ({
             onClick={() => onClose(false)}
           >
             Hủy
-          </Button>
-          <Button
-            onClick={handleChangePassword}
-            className="cursor-pointer bg-(--color-primary) hover:bg-[#2a4b70]"
-          >
-            {processingPassword ? (
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Đang xử lý...
-              </div>
-            ) : (
-              `Thay đổi mật khẩu`
-            )}
           </Button>
           <Button
             onClick={handleChangeInfo}
