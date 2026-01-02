@@ -27,9 +27,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Swal from "sweetalert2";
+import { SCORE_RANGE } from "@/constants/ReviewConstants";
 
 /* ===================== CONSTANTS ===================== */
-const SCORE_RANGE = [0, 10];
 
 /* ===================== COMPONENT ===================== */
 const ReviewManagement = () => {
@@ -63,7 +63,9 @@ const ReviewManagement = () => {
       render: (i) => (
         <Badge
           onClick={() => handleToggleStatus(i)}
-          className={`cursor-pointer italic ${i?.status ? "bg-green-600" : "bg-red-600"}`}
+          className={`cursor-pointer italic ${
+            i?.status ? "bg-green-600" : "bg-red-600"
+          }`}
         >
           {i?.status ? "Hiển thị" : "Ẩn"}
         </Badge>
@@ -179,6 +181,10 @@ const ReviewManagement = () => {
     keyword: "",
     status: "",
   });
+  const [dateRange, setDateRange] = useState({
+    fromDate: "",
+    toDate: "",
+  });
 
   const [scoreRange, setScoreRange] = useState(SCORE_RANGE);
 
@@ -187,16 +193,33 @@ const ReviewManagement = () => {
   const [currentReview, setCurrentReview] = useState(null);
 
   /* ===================== API ===================== */
-  const fetchReviews = async (pageIndex = 0, scoreOverride) => {
+  const fetchReviews = async (
+    pageIndex = 0,
+    scoreOverride = scoreRange,
+    filterOverride = filters,
+    dateOverride = dateRange
+  ) => {
     setLoading(true);
     try {
       const res = await reviewService.searchAdvance({
         page: pageIndex,
         size: 10,
-        ...(filters.customerName && { customerName: filters.customerName }),
-        ...(filters.bookingId && { bookingId: filters.bookingId }),
-        ...(filters.keyword && { keyword: filters.keyword }),
-        ...(filters.status !== "" && { status: filters.status }),
+        ...(filterOverride?.customerName && {
+          customerName: filterOverride.customerName,
+        }),
+        ...(filterOverride?.bookingId && {
+          bookingId: filterOverride.bookingId,
+        }),
+        ...(filterOverride?.keyword && {
+          keyword: filterOverride.keyword,
+        }),
+        ...(filterOverride?.status !== "" && {
+          status: filterOverride.status,
+        }),
+
+        ...(dateOverride?.fromDate && { fromDate: dateOverride.fromDate }),
+        ...(dateOverride?.toDate && { toDate: dateOverride.toDate }),
+
         ...(scoreOverride && {
           minScore: scoreOverride[0],
           maxScore: scoreOverride[1],
@@ -222,15 +245,24 @@ const ReviewManagement = () => {
   };
 
   const handleClear = () => {
-    setFilters({
+    const clearedFilters = {
       customerName: "",
       bookingId: "",
       keyword: "",
       status: "",
-    });
+    };
+
+    const clearedDate = {
+      fromDate: "",
+      toDate: "",
+    };
+
+    setFilters(clearedFilters);
+    setDateRange(clearedDate);
     setScoreRange(SCORE_RANGE);
     setPage(0);
-    fetchReviews(0);
+
+    fetchReviews(0, null, clearedFilters, clearedDate);
   };
 
   const handleDetail = (item) => {
@@ -329,6 +361,30 @@ const ReviewManagement = () => {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label>Từ ngày</Label>
+                <Input
+                  type="datetime-local"
+                  value={dateRange.fromDate}
+                  onChange={(e) =>
+                    setDateRange({ ...dateRange, fromDate: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label>Đến ngày</Label>
+                <Input
+                  type="datetime-local"
+                  value={dateRange.toDate}
+                  onChange={(e) =>
+                    setDateRange({ ...dateRange, toDate: e.target.value })
+                  }
+                />
+              </div>
             </div>
 
             <div className="rounded-xl border p-4 bg-muted/30 space-y-2">

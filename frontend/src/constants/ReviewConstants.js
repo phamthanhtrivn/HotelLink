@@ -15,3 +15,5 @@ export const REVIEW_STATUS_MAP = {
     className: "bg-red-100 text-red-700 border-red-300",
   },
 };
+
+export const SCORE_RANGE = [0, 10];
