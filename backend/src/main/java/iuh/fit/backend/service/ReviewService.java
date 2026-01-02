@@ -12,6 +12,9 @@ import iuh.fit.backend.repository.ReviewRepo;
 import iuh.fit.backend.util.IdUtil;
 import iuh.fit.backend.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,14 +52,14 @@ public class ReviewService {
         List<Review> reviews = reviewRepo.findReviewsByRoomTypeOrderByCreatedAtDesc(roomTypeId);
         if (reviews.isEmpty()) {
             return new APIResponse<>(true, HTTPResponse.SC_OK, "Không có đánh giá cho loại phòng này", reviews);
-        }
-        else {
+        } else {
             return new APIResponse<>(true, HTTPResponse.SC_OK, "Lấy đánh giá thành công", reviews);
         }
     }
 
     @Transactional
-    public APIResponse<Review> createReviewByCustomer(String customerId, String bookingId, ReviewRequest reviewRequest) throws AccessDeniedException {
+    public APIResponse<Review> createReviewByCustomer(String customerId, String bookingId, ReviewRequest reviewRequest)
+            throws AccessDeniedException {
         APIResponse<Review> response = new APIResponse<>();
         response.setSuccess(false);
         response.setData(null);
@@ -126,13 +129,58 @@ public class ReviewService {
         if (review == null) {
             response.setStatus(HTTPResponse.SC_OK);
             response.setMessage("Không có đánh giá!");
-        }
-        else {
+        } else {
             response.setStatus(HTTPResponse.SC_OK);
             response.setMessage("Lấy đánh giá thành công!");
-           
+
         }
 
         return response;
     }
+
+    public APIResponse<Page<Review>> searchReviews(
+            Boolean status,
+            String customerName,
+            String bookingId,
+            String keyword,
+            LocalDateTime fromDate,
+            LocalDateTime toDate,
+            Double minScore,
+            Double maxScore,
+            Pageable pageable) {
+        Page<Review> result = reviewRepo.searchAdvance(
+                status,
+                customerName,
+                bookingId,
+                keyword,
+                fromDate,
+                toDate,
+                minScore,
+                maxScore,
+                pageable);
+
+        return new APIResponse<>(
+                true,
+                200,
+                "Lấy danh sách đánh giá thành công",
+                result);
+    }
+
+    public APIResponse<?> updateStatus(String id, Boolean status) {
+    Review review = reviewRepo.findById(id)
+        .orElseThrow(() -> new RuntimeException("Không tìm thấy đánh giá"));
+
+    review.setStatus(status);
+    review.setUpdatedAt(LocalDateTime.now());
+
+    reviewRepo.save(review);
+
+    return new APIResponse<>(
+        true,
+        200,
+        "Cập nhật trạng thái đánh giá thành công",
+        null
+    );
+}
+
 }
