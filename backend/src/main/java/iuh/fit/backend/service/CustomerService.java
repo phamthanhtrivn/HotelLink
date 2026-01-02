@@ -5,11 +5,15 @@ import iuh.fit.backend.dto.APIResponse;
 import iuh.fit.backend.dto.CustomerResponse;
 import iuh.fit.backend.dto.CustomerUpdateRequest;
 import iuh.fit.backend.entity.Customer;
+import iuh.fit.backend.entity.Review;
 import iuh.fit.backend.entity.User;
 import iuh.fit.backend.repository.CustomerRepo;
 import iuh.fit.backend.repository.UserRepo;
 import iuh.fit.backend.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -131,5 +135,29 @@ public class CustomerService {
         response.setData(cusResponse);
 
         return response;
+    }
+    
+    public APIResponse<Page<Customer>> searchAdvance(String email, String fullName, String phone, Double minPoint, Double maxPoint, Pageable pageable) {
+        Page<Customer> result = customerRepo.searchAdvance(fullName, email, phone, minPoint, maxPoint, pageable);
+
+        return new APIResponse<Page<Customer>>(true, HTTPResponse.SC_OK, "Lấy danh sách khách hàng thành công", result);
+    }
+
+    public APIResponse<?> updateStatus(String id, Boolean status) {
+        Customer customer = customerRepo.findById(id)
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy đánh giá"));
+
+        User user = customer.getUser();
+        user.setStatus(status);
+        user.setUpdatedAt(LocalDateTime.now());
+
+        userRepo.save(user);
+
+        return new APIResponse<>(
+            true,
+            HTTPResponse.SC_OK,
+            "Cập nhật trạng thái đánh giá thành công",
+            null
+        );
     }
 }

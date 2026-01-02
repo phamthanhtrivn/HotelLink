@@ -1,6 +1,5 @@
 package iuh.fit.backend.service;
 
-import iuh.fit.backend.dto.APIResponse;
 import iuh.fit.backend.entity.Room;
 import iuh.fit.backend.repository.RoomRepo;
 import lombok.RequiredArgsConstructor;

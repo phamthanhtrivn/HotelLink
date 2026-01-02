@@ -161,7 +161,7 @@ public class ReviewService {
 
         return new APIResponse<>(
                 true,
-                200,
+                HTTPResponse.SC_OK,
                 "Lấy danh sách đánh giá thành công",
                 result);
     }
@@ -177,7 +177,7 @@ public class ReviewService {
 
     return new APIResponse<>(
         true,
-        200,
+        HTTPResponse.SC_OK,
         "Cập nhật trạng thái đánh giá thành công",
         null
     );

@@ -1,7 +1,6 @@
 package iuh.fit.backend.service;
 
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
-import io.github.cdimascio.dotenv.Dotenv;
 import iuh.fit.backend.dto.*;
 import iuh.fit.backend.entity.Customer;
 import iuh.fit.backend.entity.Person;
