@@ -59,8 +59,6 @@ const AdminProfileModal = ({
     }
   };
 
-  console.log(infor);
-
   const handleChangePassword = async () => {
     setProcessingPassword(true);
     try {

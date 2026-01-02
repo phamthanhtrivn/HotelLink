@@ -295,6 +295,13 @@ CREATE TABLE IF NOT EXISTS `bookings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 -- Dumping data for table hotellink.bookings: ~0 rows (approximately)
+INSERT INTO `bookings` (`booking_id`, `booking_source`, `booking_status`, `check_in`, `check_out`, `contact_email`, `contact_name`, `contact_phone`, `created_at`, `extra_services`, `first_time_discount`, `nights`, `notes`, `paid`, `point_discount`, `room_price`, `total`, `total_payment`, `updated_at`, `vat_fee`, `created_by`, `customer_id`, `room_id`, `updated_by`) VALUES
+	('BK39EM9VX5WB', 'ONLINE', 'COMPLETED', '2026-01-01 14:00:00.000000', '2026-01-11 12:00:00.000000', 'phamthanhtri0712@gmail.com', 'Phạm Thành Trí', '0398694435', '2025-12-29 11:49:12.870299', 0, 600000, 10, '', b'1', 0, 600000, 6000000, 5832000, '2025-12-29 11:51:14.367583', 432000, 'USFQY6HBNFMX', 'USFQY6HBNFMX', 'RM1', 'USFQY6HBNFMX'),
+	('BK4RWHL705LO', 'ONLINE', 'CANCELLED', '2026-01-02 14:00:00.000000', '2026-01-04 12:00:00.000000', 'phamthanhtri0712@gmail.com', 'Phạm Thành Trí', '0398694435', '2025-12-30 10:56:12.261161', 0, 0, 2, '', b'1', 600000, 600000, 1200000, 648000, '2025-12-30 10:56:40.862279', 48000, 'USFQY6HBNFMX', 'USFQY6HBNFMX', 'RM2', 'USFQY6HBNFMX'),
+	('BKHAZ70KON38', 'ONLINE', 'CONFIRMED', '2025-12-30 14:00:00.000000', '2025-12-31 12:00:00.000000', 'phamthanhtri0712@gmail.com', 'Trí Phạm', '0398694435', '2025-12-29 11:39:26.103424', 0, 0, 1, '', b'1', 0, 600000, 600000, 648000, '2025-12-29 11:45:04.388488', 48000, NULL, NULL, 'RM2', NULL),
+	('BKJGVP9RQDMV', 'ONLINE', 'CONFIRMED', '2025-12-30 14:00:00.000000', '2025-12-31 12:00:00.000000', 'phamthanhtri0712@gmail.com', 'Phạm Thành Trí', '0398694435', '2025-12-29 18:56:26.382780', 0, 0, 1, '', b'1', 600000, 600000, 600000, 0, NULL, 0, 'USFQY6HBNFMX', 'USFQY6HBNFMX', 'RM3', NULL),
+	('BKX0VRW7XKAZ', 'ONLINE', 'CONFIRMED', '2025-12-30 14:00:00.000000', '2025-12-31 12:00:00.000000', 'phamthanhtri0712@gmail.com', 'Trí Phạm', '0398694435', '2025-12-29 11:31:02.285218', 0, 0, 1, '', b'1', 0, 600000, 600000, 648000, '2025-12-29 11:32:52.639603', 48000, NULL, NULL, 'RM1', NULL),
+	('BKX8X7F0U56Z', 'ONLINE', 'COMPLETED', '2025-12-31 14:00:00.000000', '2026-01-01 12:00:00.000000', 'phamthanhtri0712@gmail.com', 'Phạm Thành Trí', '0398694435', '2025-12-30 11:52:24.242890', 0, 0, 1, '', b'1', 0, 600000, 600000, 648000, '2025-12-30 11:57:53.804922', 48000, 'USFQY6HBNFMX', 'USFQY6HBNFMX', 'RM1', 'USFQY6HBNFMX');
 
 -- Dumping structure for table hotellink.booking_services
 CREATE TABLE IF NOT EXISTS `booking_services` (
@@ -320,6 +327,9 @@ CREATE TABLE IF NOT EXISTS `customers` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 -- Dumping data for table hotellink.customers: ~0 rows (approximately)
+INSERT INTO `customers` (`points`, `user_id`) VALUES
+	(1, 'USFQY6HBNFMX');
+
 
 -- Dumping structure for table hotellink.persons
 CREATE TABLE IF NOT EXISTS `persons` (
@@ -332,6 +342,9 @@ CREATE TABLE IF NOT EXISTS `persons` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 -- Dumping data for table hotellink.persons: ~0 rows (approximately)
+INSERT INTO `persons` (`user_id`, `full_name`, `phone`) VALUES
+	('USFQY6HBNFMX', 'Phạm Thành Trí', '0398694435'),
+	('USGKMCKDMQI8', 'Trần Hoài Bảo', '0365236450');
 
 -- Dumping structure for table hotellink.reviews
 CREATE TABLE IF NOT EXISTS `reviews` (
@@ -353,6 +366,9 @@ CREATE TABLE IF NOT EXISTS `reviews` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 -- Dumping data for table hotellink.reviews: ~0 rows (approximately)
+INSERT INTO `reviews` (`review_id`, `cleanliness_score`, `comments`, `created_at`, `facilities_score`, `service_score`, `status`, `updated_at`, `booking_id`, `customer_id`) VALUES
+	('RVCFE91A4ZOV', 9, 'Phòng sạch sẽ, thơm tho, Giá cả phù hợp, rất oke', '2025-12-30 10:18:28.551283', 8, 9, b'1', NULL, 'BK39EM9VX5WB', 'USFQY6HBNFMX'),
+	('RVSUQ7ET4WKZ', 10, 'Phòng sạch sẽ, thơm tho, Cách âm tốt', '2025-12-30 11:59:01.663280', 10, 10, b'1', NULL, 'BKX8X7F0U56Z', 'USFQY6HBNFMX');
 
 -- Dumping structure for table hotellink.rooms
 CREATE TABLE IF NOT EXISTS `rooms` (
@@ -548,6 +564,9 @@ CREATE TABLE IF NOT EXISTS `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 -- Dumping data for table hotellink.users: ~0 rows (approximately)
+INSERT INTO `users` (`user_id`, `created_at`, `email`, `password`, `role`, `status`, `updated_at`) VALUES
+	('USFQY6HBNFMX', '2025-12-28 15:47:11.666974', 'phamthanhtri0712@gmail.com', '$2a$10$tlB24yFfmUkZpabddqw7/OLGl8x5RQCcW2IZtksnkutxk9MOiA6Hu', 'MEMBER', b'1', '2025-12-28 15:53:58.622414'),
+	('USGKMCKDMQI8', '2025-12-30 23:13:28.000000', 'hotellink652@gmail.com', '$2a$10$a8eINR3UW8v.1bajLIwjMuI//znlnyIePxPnP0e2.n9oYl3Bki1C.', 'ADMIN', b'1', '2025-12-31 17:53:05.530053');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
