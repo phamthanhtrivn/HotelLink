@@ -4,14 +4,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import iuh.fit.backend.dto.APIResponse;
+import iuh.fit.backend.entity.ServiceEntity;
 import iuh.fit.backend.entity.ServiceType;
 import iuh.fit.backend.service.Service_Service;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 @RestController
@@ -31,6 +38,18 @@ public class Admin_ServiceController {
       @RequestParam(defaultValue = "10") int size
   ) {
       APIResponse<?> response = service.search(name, type, status, minPrice, maxPrice, PageRequest.of(page, size));
+      return ResponseEntity.status(response.getStatus()).body(response);
+  }
+
+  @PostMapping
+  public ResponseEntity<APIResponse<?>> createService(@RequestBody @Valid ServiceEntity serviceEntity) {
+      APIResponse<?> response = service.createService(serviceEntity);
+      return ResponseEntity.status(response.getStatus()).body(response);
+  }
+  
+  @PutMapping("/{serviceId}")
+  public ResponseEntity<APIResponse<?>> updateService(@PathVariable String serviceId, @RequestBody @Valid ServiceEntity serviceEntity) {
+      APIResponse<?> response = service.updateService(serviceId, serviceEntity);
       return ResponseEntity.status(response.getStatus()).body(response);
   }
   

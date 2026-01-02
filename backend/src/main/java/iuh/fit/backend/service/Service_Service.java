@@ -10,12 +10,14 @@ import iuh.fit.backend.dto.APIResponse;
 import iuh.fit.backend.entity.ServiceEntity;
 import iuh.fit.backend.entity.ServiceType;
 import iuh.fit.backend.repository.ServiceRepo;
+import iuh.fit.backend.util.IdUtil;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class Service_Service {
   private final ServiceRepo serviceRepo;
+  private final IdUtil idUtil;
 
   public APIResponse<Page<ServiceEntity>> search(String name, ServiceType type, Boolean status, Double minPrice, Double maxPrice, Pageable pageable) {
     APIResponse<Page<ServiceEntity>> response = new APIResponse<>();
@@ -33,6 +35,33 @@ public class Service_Service {
       response.setMessage("Lấy danh sách dịch vụ thành công");
       return response;
     }
-
   } 
+
+  public APIResponse<ServiceEntity> createService(ServiceEntity serviceEntity) {
+    APIResponse<ServiceEntity> response = new APIResponse<>();
+
+    serviceEntity.setId(idUtil.generateUniqueCodeForService());
+  
+    ServiceEntity savedService = serviceRepo.save(serviceEntity);
+    response.setSuccess(true);
+    response.setStatus(HTTPResponse.SC_OK);
+    response.setMessage("Tạo dịch vụ thành công");
+    response.setData(savedService);
+
+    return response;
+  }
+
+  public APIResponse<ServiceEntity> updateService(String serviceId, ServiceEntity serviceEntity) {
+    APIResponse<ServiceEntity> response = new APIResponse<>();
+
+    serviceEntity.setId(serviceId);
+  
+    ServiceEntity savedService = serviceRepo.save(serviceEntity);
+    response.setSuccess(true);
+    response.setStatus(HTTPResponse.SC_OK);
+    response.setMessage("Cập nhật dịch vụ thành công");
+    response.setData(savedService);
+
+    return response;
+  }
 }

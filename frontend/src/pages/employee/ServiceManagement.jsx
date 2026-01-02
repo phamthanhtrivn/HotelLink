@@ -1,6 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { Loader2, PlusCircleIcon, RotateCcw, Search } from "lucide-react";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
@@ -9,63 +16,79 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import AdminManagementLayout from "@/components/common/employee/AdminManagementLayout";
 import AdminTable from "@/components/common/employee/AdminTable";
 import AdminPagination from "@/components/common/employee/AdminPagination";
 import ActionButtons from "@/components/common/employee/ActionButtons";
-import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import DetailDialog from "@/components/common/employee/DetailModal";
+
 import { serviceSerice } from "@/services/serviceService";
-import { Loader2, PlusCircleIcon, RotateCcw, Search } from "lucide-react";
+import { formatVND } from "@/helpers/currencyFormatter";
 import {
-  SERVICE_TYPE_LABELS,
+  DEFAULT_PRICE_RANGE,
   SERVICE_TYPES,
+  SERVICE_TYPE_LABELS,
 } from "@/constants/ServiceConstants";
 import { STATUS_OPTIONS } from "@/constants/StatusConstants";
-import AdminManagementLayout from "@/components/common/employee/AdminManagementLayout";
-import { formatVND } from "@/helpers/currencyFormatter";
-import { Slider } from "@/components/ui/slider";
-import { Badge } from "@/components/ui/badge";
+import EditCreateModal from "@/components/common/employee/EditCreateModal";
 
 const ServiceManagement = () => {
+  /* ===================== TABLE COLUMNS ===================== */
   const columns = [
     { key: "id", label: "ID" },
     { key: "name", label: "Tên" },
     {
       key: "serviceType",
       label: "Loại",
-      render: (i) => SERVICE_TYPE_LABELS[i.serviceType] || "—",
+      render: (i) => SERVICE_TYPE_LABELS?.[i?.serviceType] || "—",
     },
     {
       key: "unitPrice",
       label: "Giá",
-      render: (i) => formatVND(i.unitPrice),
+      render: (i) => formatVND(i?.unitPrice),
     },
     {
       key: "status",
       label: "Trạng thái",
       render: (i) => (
-        <Badge className={`${i.status ? "bg-green-600" : "bg-red-600"} italic`}>
-          {i.status ? "Hoạt động" : "Tạm ngưng"}
+        <Badge
+          className={`italic ${i?.status ? "bg-green-600" : "bg-red-600"}`}
+        >
+          {i?.status ? "Hoạt động" : "Tạm ngưng"}
         </Badge>
       ),
     },
   ];
 
+  /* ===================== STATES ===================== */
   const [services, setServices] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
 
   const [filters, setFilters] = useState({
     name: "",
     type: "",
     status: "",
-    minPrice: "",
-    maxPrice: "",
   });
-  const [priceRange, setPriceRange] = useState([0, 1000000]);
-  const [loading, setLoading] = useState(false);
 
-  const handleFetchServices = async (pageIndex = 0, overrideFilters = {}) => {
+  const [priceRange, setPriceRange] = useState(DEFAULT_PRICE_RANGE);
+
+  const [openDetail, setOpenDetail] = useState(false);
+  const [currentService, setCurrentService] = useState(null);
+
+  const [openForm, setOpenForm] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    serviceType: "OTHER",
+    unitPrice: "",
+    status: true,
+  });
+  const [errors, setErrors] = useState({});
+
+  /* ===================== API ===================== */
+  const fetchServices = async (pageIndex = 0, priceOverride) => {
     setLoading(true);
     try {
       const res = await serviceSerice.findService({
@@ -74,11 +97,9 @@ const ServiceManagement = () => {
         ...(filters.name && { name: filters.name }),
         ...(filters.type && { type: filters.type }),
         ...(filters.status !== "" && { status: filters.status }),
-        ...(overrideFilters.minPrice !== undefined && {
-          minPrice: overrideFilters.minPrice,
-        }),
-        ...(overrideFilters.maxPrice !== undefined && {
-          maxPrice: overrideFilters.maxPrice,
+        ...(priceOverride && {
+          minPrice: priceOverride[0],
+          maxPrice: priceOverride[1],
         }),
       });
 
@@ -86,89 +107,286 @@ const ServiceManagement = () => {
       setServices(pageData.content);
       setPage(pageData.number);
       setTotalPages(pageData.totalPages);
-    } catch (error) {
-      console.log(error);
-      toast.error("Lỗi khi lấy danh sách dịch vụ");
+    } catch (e) {
+      console.log(e);
+      toast.error("Lỗi khi tải danh sách dịch vụ");
     } finally {
       setLoading(false);
     }
   };
 
+  /* ===================== HANDLERS ===================== */
   const handleSearch = () => {
     setPage(0);
-    handleFetchServices(0, {
-      minPrice: priceRange[0],
-      maxPrice: priceRange[1],
-    });
+    fetchServices(0, priceRange);
   };
 
-  const handleClear = async () => {
-    const clearedFilters = {
+  const handleClear = () => {
+    setFilters({ name: "", type: "", status: "" });
+    setPriceRange(DEFAULT_PRICE_RANGE);
+    setPage(0);
+    fetchServices(0);
+  };
+
+  const handleDetail = (item) => {
+    setCurrentService(item);
+    setOpenDetail(true);
+  };
+
+  const handleAdd = () => {
+    setCurrentService(null);
+    setFormData({
       name: "",
-      type: "",
-      status: "",
-      minPrice: "",
-      maxPrice: "",
+      serviceType: "OTHER",
+      unitPrice: "",
+      status: true,
+    });
+    setErrors({});
+    setOpenForm(true);
+  };
+
+  const handleUpdate = (item) => {
+    setCurrentService(item);
+    setFormData({
+      name: item.name,
+      serviceType: item.serviceType,
+      unitPrice: item.unitPrice,
+      status: item.status,
+    });
+    setErrors({});
+    setOpenForm(true);
+  };
+
+  const handleSaveAndUpdate = async () => {
+    setErrors({});
+
+    const payload = {
+      name: formData.name,
+      serviceType: formData.serviceType,
+      unitPrice: Number(formData.unitPrice),
+      status: formData.status,
     };
 
-    setFilters(clearedFilters);
-    setPriceRange([0, 500000]);
-    setPage(0);
-
-    setLoading(true);
     try {
-      const res = await serviceSerice.findService({
-        page: 0,
-        size: 10,
-      });
+      setSaveLoading(true);
 
-      const pageData = res.data;
-      setServices(pageData.content);
-      setTotalPages(pageData.totalPages);
-    } catch (error) {
-      console.log(error);
-      toast.error("Lỗi khi làm mới dữ liệu");
+      if (currentService) {
+        const res = await serviceSerice.updateService(
+          currentService.id,
+          payload
+        );
+        if (res.success) {
+          toast.success(res.message);
+          setOpenForm(false);
+          fetchServices(0);
+          setPage(0);
+        } else {
+          toast.error(res.message);
+          setErrors(res.data);
+        }
+      } else {
+        const res = await serviceSerice.saveService(payload);
+        if (res.success) {
+          toast.success(res.message);
+          setOpenForm(false);
+          fetchServices(0);
+          setPage(0);
+        } else {
+          toast.error(res.message);
+          setErrors(res.data);
+        }
+      }
+    } catch (err) {
+      console.log(err);
+      toast.error("Lỗi khi lưu dữ liệu");
     } finally {
-      setLoading(false);
+      setSaveLoading(false);
     }
   };
 
+  /* ===================== EFFECT ===================== */
   useEffect(() => {
-    handleFetchServices(page);
+    fetchServices(page);
   }, [page]);
 
+  /* ===================== LOADING ===================== */
   if (loading)
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white/80 z-50">
-        <Loader2 className="w-16 h-16 text-[#1E2A38] animate-spin" />
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80">
+        <Loader2 className="h-16 w-16 animate-spin text-[#1E2A38]" />
       </div>
     );
 
+  /* ===================== RENDER ===================== */
   return (
-    <AdminManagementLayout
-      title="Quản lý Dịch vụ"
-      actions={
-        <Button className="bg-(--color-primary) cursor-pointer hover:bg-[#2a4b70]">
-          <PlusCircleIcon />
-          Thêm dịch vụ
-        </Button>
-      }
-      filters={
-        <div className="flex flex-col gap-4">
-          {/* ROW 1: TEXT / SELECT FILTERS */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <Input
-              placeholder="Tên dịch vụ..."
-              value={filters.name}
-              onChange={(e) => setFilters({ ...filters, name: e.target.value })}
-            />
+    <>
+      <AdminManagementLayout
+        title="Quản lý Dịch vụ"
+        actions={
+          <Button
+            onClick={handleAdd}
+            className="bg-(--color-primary) hover:bg-[#2a4b70]"
+          >
+            <PlusCircleIcon className="mr-1" />
+            Thêm dịch vụ
+          </Button>
+        }
+        filters={
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <Input
+                placeholder="Tên dịch vụ..."
+                value={filters.name}
+                onChange={(e) =>
+                  setFilters({ ...filters, name: e.target.value })
+                }
+              />
 
+              <Select
+                value={filters.type}
+                onValueChange={(v) => setFilters({ ...filters, type: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Loại dịch vụ" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SERVICE_TYPES.map((t) => (
+                    <SelectItem key={t.value} value={t.value}>
+                      {t.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={filters.status}
+                onValueChange={(v) => setFilters({ ...filters, status: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Trạng thái" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUS_OPTIONS.map((s) => (
+                    <SelectItem key={s.value} value={s.value}>
+                      {s.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="rounded-xl border p-4 bg-muted/30 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Khoảng giá</span>
+                <span className="font-medium">
+                  {formatVND(priceRange[0])} - {formatVND(priceRange[1])}
+                </span>
+              </div>
+
+              <Slider
+                value={priceRange}
+                onValueChange={setPriceRange}
+                min={0}
+                max={500000}
+                step={10000}
+              />
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <Button onClick={handleSearch}>
+                <Search className="w-4 h-4 mr-1" />
+                Tìm kiếm
+              </Button>
+              <Button variant="outline" onClick={handleClear}>
+                <RotateCcw className="w-4 h-4 mr-1" />
+                Làm mới
+              </Button>
+            </div>
+          </div>
+        }
+        table={
+          <AdminTable
+            columns={columns}
+            data={services}
+            renderActions={(item) => (
+              <ActionButtons
+                onView={() => handleDetail(item)}
+                onEdit={() => handleUpdate(item)}
+              />
+            )}
+          />
+        }
+        pagination={
+          <AdminPagination
+            currentPage={page}
+            totalPages={totalPages}
+            onChange={setPage}
+          />
+        }
+      />
+
+      {currentService && (
+        <DetailDialog
+          open={openDetail}
+          onClose={() => setOpenDetail(false)}
+          data={currentService}
+          fields={columns}
+        />
+      )}
+
+      <EditCreateModal
+        open={openForm}
+        onClose={() => setOpenForm(false)}
+        title={currentService ? "Cập nhật dịch vụ" : "Thêm dịch vụ"}
+        onSubmit={handleSaveAndUpdate}
+        loading={saveLoading}
+      >
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label>
+              Tên dịch vụ <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+              className={errors.name && "border-red-500"}
+            />
+            {errors.name && (
+              <p className="text-sm text-red-500">{errors.name}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>
+              Đơn giá <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              type="number"
+              value={formData.unitPrice}
+              onChange={(e) =>
+                setFormData({ ...formData, unitPrice: e.target.value })
+              }
+              className={errors.unitPrice && "border-red-500"}
+            />
+            {errors.unitPrice && (
+              <p className="text-sm text-red-500">{errors.unitPrice}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>
+              Loại dịch vụ <span className="text-red-500">*</span>
+            </Label>
             <Select
-              value={filters.type}
-              onValueChange={(value) => setFilters({ ...filters, type: value })}
+              value={formData.serviceType}
+              onValueChange={(v) =>
+                setFormData({ ...formData, serviceType: v })
+              }
             >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Loại dịch vụ" />
+              <SelectTrigger>
+                <SelectValue placeholder="Chọn loại" />
               </SelectTrigger>
               <SelectContent>
                 {SERVICE_TYPES.map((t) => (
@@ -178,90 +396,40 @@ const ServiceManagement = () => {
                 ))}
               </SelectContent>
             </Select>
-
-            <Select
-              value={filters.status}
-              onValueChange={(value) =>
-                setFilters({ ...filters, status: value })
-              }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Trạng thái" />
-              </SelectTrigger>
-              <SelectContent>
-                {STATUS_OPTIONS.map((s) => (
-                  <SelectItem key={s.value} value={s.value}>
-                    {s.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {errors.serviceType && (
+              <p className="text-sm text-red-500">{errors.serviceType}</p>
+            )}
           </div>
 
-          {/* ROW 2: PRICE SLIDER */}
-          <div className="rounded-xl border p-4 space-y-3 bg-muted/30">
-            <div className="flex justify-between text-sm text-muted-foreground">
-              <span>Khoảng giá</span>
-              <span className="font-medium text-foreground">
-                {formatVND(priceRange[0])} – {formatVND(priceRange[1])}
-              </span>
+          {currentService && (
+            <div className="space-y-2">
+              <Label>
+                Trạng thái <span className="text-red-500">*</span>
+              </Label>
+
+              <Select
+                value={String(formData.status)}
+                onValueChange={(v) =>
+                  setFormData({ ...formData, status: v === "true" })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="true">Hoạt động</SelectItem>
+                  <SelectItem value="false">Tạm ngưng</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {errors.status && (
+                <p className="text-sm text-red-500">{errors.status}</p>
+              )}
             </div>
-
-            <Slider
-              value={priceRange}
-              onValueChange={setPriceRange}
-              min={0}
-              max={500000}
-              step={10000}
-              className="mt-2 bg-(--color-primary) cursor-pointer"
-            />
-          </div>
-
-          {/* ROW 3: ACTIONS */}
-          <div className="flex justify-end gap-2">
-            <Button
-              onClick={() => {
-                setFilters({
-                  ...filters,
-                  minPrice: priceRange[0],
-                  maxPrice: priceRange[1],
-                });
-                handleSearch();
-              }}
-              className="bg-(--color-primary) cursor-pointer hover:bg-[#2a4b70]"
-            >
-              <Search className="w-4 h-4 mr-1" />
-              Tìm kiếm
-            </Button>
-
-            <Button
-              variant="outline"
-              onClick={handleClear}
-              className="hover:bg-gray-300 cursor-pointer"
-            >
-              <RotateCcw className="w-4 h-4 mr-1" />
-              Làm mới
-            </Button>
-          </div>
-        </div>
-      }
-      table={
-        <AdminTable
-          columns={columns}
-          data={services}
-          renderActions={() => (
-            <ActionButtons onView={() => {}} onEdit={() => {}} />
           )}
-        />
-      }
-      pagination={
-        <AdminPagination
-          currentPage={page}
-          totalPages={totalPages}
-          onChange={setPage}
-        />
-      }
-    />
+        </div>
+      </EditCreateModal>
+    </>
   );
 };
 

@@ -2,6 +2,7 @@ package iuh.fit.backend.util;
 
 import iuh.fit.backend.repository.BookingRepo;
 import iuh.fit.backend.repository.ReviewRepo;
+import iuh.fit.backend.repository.ServiceRepo;
 import iuh.fit.backend.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ public class IdUtil {
     private final UserRepo userRepo;
     private final BookingRepo bookingRepo;
     private final ReviewRepo reviewRepo;
+    private final ServiceRepo serviceRepo;
 
     private String randomCode(int length) {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -47,6 +49,14 @@ public class IdUtil {
         do {
             code = "RV" + randomCode(10);
         } while (reviewRepo.existsReviewsById(code));
+        return code;
+    }
+
+    public String generateUniqueCodeForService() {
+        String code;
+        do {
+            code = "SV" + randomCode(10);
+        } while (serviceRepo.existsServicesById(code));
         return code;
     }
 }

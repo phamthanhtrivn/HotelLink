@@ -20,7 +20,7 @@ public class ServiceEntity {
     @Id
     @Column(name = "service_id")
     private String id;
-    @NotBlank
+    @NotBlank(message = "Không được bỏ trống")
     @Pattern(
             message = "Viết hoa mỗi chữ cái đầu, ít nhất 1 từ",
             regexp = "^[A-ZÀ-Ỹ][a-zà-ỹ]*(?:\\s+[A-ZÀ-Ỹ][a-zà-ỹ]*)*$"

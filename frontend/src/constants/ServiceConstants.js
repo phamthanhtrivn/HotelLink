@@ -11,3 +11,5 @@ export const SERVICE_TYPE_LABELS = {
   DRINK: "Đồ uống",
   OTHER: "Khác",
 };
+
+export const DEFAULT_PRICE_RANGE = [0, 1000000];
