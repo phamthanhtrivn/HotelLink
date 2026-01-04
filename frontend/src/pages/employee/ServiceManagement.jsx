@@ -33,7 +33,6 @@ import { STATUS_OPTIONS } from "@/constants/StatusConstants";
 import EditCreateModal from "@/components/common/employee/EditCreateModal";
 
 const ServiceManagement = () => {
-  /* ===================== TABLE COLUMNS ===================== */
   const columns = [
     { key: "id", label: "ID" },
     { key: "name", label: "Tên" },
@@ -60,7 +59,6 @@ const ServiceManagement = () => {
     },
   ];
 
-  /* ===================== STATES ===================== */
   const [services, setServices] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -87,7 +85,6 @@ const ServiceManagement = () => {
   });
   const [errors, setErrors] = useState({});
 
-  /* ===================== API ===================== */
   const fetchServices = async (pageIndex = 0, priceOverride) => {
     setLoading(true);
     try {
@@ -115,7 +112,6 @@ const ServiceManagement = () => {
     }
   };
 
-  /* ===================== HANDLERS ===================== */
   const handleSearch = () => {
     setPage(0);
     fetchServices(0, priceRange);
@@ -204,12 +200,10 @@ const ServiceManagement = () => {
     }
   };
 
-  /* ===================== EFFECT ===================== */
   useEffect(() => {
     fetchServices(page);
   }, [page]);
 
-  /* ===================== LOADING ===================== */
   if (loading)
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80">
@@ -217,7 +211,6 @@ const ServiceManagement = () => {
       </div>
     );
 
-  /* ===================== RENDER ===================== */
   return (
     <>
       <AdminManagementLayout

@@ -29,11 +29,7 @@ import {
 import Swal from "sweetalert2";
 import { SCORE_RANGE } from "@/constants/ReviewConstants";
 
-/* ===================== CONSTANTS ===================== */
-
-/* ===================== COMPONENT ===================== */
 const ReviewManagement = () => {
-  /* ===================== TABLE COLUMNS ===================== */
   const columns = [
     { key: "id", label: "ID" },
     {
@@ -169,7 +165,6 @@ const ReviewManagement = () => {
     },
   ];
 
-  /* ===================== STATES ===================== */
   const [reviews, setReviews] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -189,10 +184,8 @@ const ReviewManagement = () => {
   const [scoreRange, setScoreRange] = useState(SCORE_RANGE);
 
   const [openDetail, setOpenDetail] = useState(false);
-  const [openForm, setOpenForm] = useState(false);
   const [currentReview, setCurrentReview] = useState(null);
 
-  /* ===================== API ===================== */
   const fetchReviews = async (
     pageIndex = 0,
     scoreOverride = scoreRange,
@@ -238,7 +231,6 @@ const ReviewManagement = () => {
     }
   };
 
-  /* ===================== HANDLERS ===================== */
   const handleSearch = () => {
     setPage(0);
     fetchReviews(0, scoreRange);
@@ -301,12 +293,10 @@ const ReviewManagement = () => {
     }
   };
 
-  /* ===================== EFFECT ===================== */
   useEffect(() => {
     fetchReviews(page);
   }, [page]);
 
-  /* ===================== LOADING ===================== */
   if (loading)
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80">
@@ -314,7 +304,6 @@ const ReviewManagement = () => {
       </div>
     );
 
-  /* ===================== RENDER ===================== */
   return (
     <>
       <AdminManagementLayout
@@ -434,7 +423,6 @@ const ReviewManagement = () => {
         }
       />
 
-      {/* ===== DETAIL ===== */}
       {currentReview && (
         <DetailDialog
           open={openDetail}
@@ -443,44 +431,6 @@ const ReviewManagement = () => {
           fields={columnsDetail}
         />
       )}
-
-      {/* ===== UPDATE (EMPTY LOGIC) ===== */}
-      <EditCreateModal
-        open={openForm}
-        onClose={() => setOpenForm(false)}
-        title="Cập nhật đánh giá"
-        onSubmit={() => {}}
-        loading={false}
-      >
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label>Nội dung đánh giá</Label>
-            <Input value={currentReview?.comments || ""} disabled />
-          </div>
-
-          <div className="grid grid-cols-3 gap-3">
-            <div className="space-y-2">
-              <Label>Sạch sẽ</Label>
-              <Input value={currentReview?.cleanlinessScore} disabled />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Dịch vụ</Label>
-              <Input value={currentReview?.serviceScore} disabled />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Cơ sở vật chất</Label>
-              <Input value={currentReview?.facilitiesScore} disabled />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Trạng thái</Label>
-            <Input value={currentReview?.status ? "Hiển thị" : "Ẩn"} disabled />
-          </div>
-        </div>
-      </EditCreateModal>
     </>
   );
 };

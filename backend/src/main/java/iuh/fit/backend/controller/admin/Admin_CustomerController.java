@@ -29,15 +29,16 @@ public class Admin_CustomerController {
     @RequestParam(required = false) String phone,
     @RequestParam(required = false) Double minPoint,
     @RequestParam(required = false) Double maxPoint,
+    @RequestParam(required = false) Boolean status,
     @RequestParam(defaultValue = "0") int page,
     @RequestParam(defaultValue = "10") int size
   ) {
-      APIResponse<?> response = customerService.searchAdvance(email, fullName, phone, minPoint, maxPoint, PageRequest.of(page, size));
+      APIResponse<?> response = customerService.searchAdvance(email, fullName, phone, minPoint, maxPoint, status, PageRequest.of(page, size));
       return ResponseEntity.status(response.getStatus()).body(response);
   }
 
   @PatchMapping("/{id}/status")
-  public ResponseEntity<APIResponse<?>> updateReviewStatus(
+  public ResponseEntity<APIResponse<?>> updateCustomerStatus(
       @PathVariable String id,
       @RequestParam Boolean status) {
     APIResponse<?> response = customerService.updateStatus(id, status);

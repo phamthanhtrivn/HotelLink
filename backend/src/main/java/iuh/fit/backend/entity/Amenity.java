@@ -18,7 +18,6 @@ public class Amenity {
     @Column(name = "amenity_id")
     private String id;
     private String name;
-    private String icon;
     @ManyToOne
     @JoinColumn(name = "amenity_type_id")
     private AmenityType amenityType;

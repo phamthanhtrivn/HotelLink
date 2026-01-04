@@ -137,15 +137,15 @@ public class CustomerService {
         return response;
     }
     
-    public APIResponse<Page<Customer>> searchAdvance(String email, String fullName, String phone, Double minPoint, Double maxPoint, Pageable pageable) {
-        Page<Customer> result = customerRepo.searchAdvance(fullName, email, phone, minPoint, maxPoint, pageable);
+    public APIResponse<Page<Customer>> searchAdvance(String email, String fullName, String phone, Double minPoint, Double maxPoint, Boolean status, Pageable pageable) {
+        Page<Customer> result = customerRepo.searchAdvance(fullName, email, phone, minPoint, maxPoint, status, pageable);
 
         return new APIResponse<Page<Customer>>(true, HTTPResponse.SC_OK, "Lấy danh sách khách hàng thành công", result);
     }
 
     public APIResponse<?> updateStatus(String id, Boolean status) {
         Customer customer = customerRepo.findById(id)
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy đánh giá"));
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng"));
 
         User user = customer.getUser();
         user.setStatus(status);
@@ -156,7 +156,7 @@ public class CustomerService {
         return new APIResponse<>(
             true,
             HTTPResponse.SC_OK,
-            "Cập nhật trạng thái đánh giá thành công",
+            "Cập nhật trạng thái khách hàng thành công",
             null
         );
     }

@@ -16,5 +16,21 @@ export const customerService = {
       }
     );  
     return res.data;
-  }
+  },
+  searchAdvance: async (params) => {
+    const res = await api.get(`/admin/customers`, {
+      params,
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    })
+    return res.data;
+  },
+  updateStatus: async (id, status) => {
+    const res = await api.patch(`/admin/customers/${id}/status`, null, {
+      params: { status },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    return res.data;
+  },
 };

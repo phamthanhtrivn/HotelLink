@@ -89,7 +89,6 @@ public class RoomTypeService {
                 .map(ad -> new AmenityResponse(
                         ad.getAmenity().getId(),
                         ad.getAmenity().getName(),
-                        ad.getAmenity().getIcon(),
                         ad.getAmenity().getAmenityType().getName()
                 ))
                 .toList();

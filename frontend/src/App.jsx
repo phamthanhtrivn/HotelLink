@@ -30,6 +30,7 @@ import ReviewManagement from "./pages/employee/ReviewManagement";
 import ServiceManagement from "./pages/employee/ServiceManagement";
 import { Route, Routes } from "react-router-dom";
 import NotFound from "./pages/NotFound";
+import OAuth2Failed from "./pages/customer/OAuth2Failed";
 
 const App = () => {
   return (
@@ -46,6 +47,7 @@ const App = () => {
         <Route index element={<Home />} />
         <Route path="login" element={<Login />} />
         <Route path="oauth2/success" element={<OAuth2Success />} />
+        <Route path="oauth2/failed" element={<OAuth2Failed />} />
         <Route path="register" element={<Register />} />
         <Route path="forgot-password" element={<ForgotPassword />} />
         <Route path="room-types" element={<RoomTypes />} />
