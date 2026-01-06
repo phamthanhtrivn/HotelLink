@@ -338,6 +338,7 @@ const CustomerManagement = () => {
 
       {currentCustomer && (
         <DetailDialog
+          title={"Chi tiết Khách hàng"}
           open={openDetail}
           onClose={() => setOpenDetail(false)}
           data={currentCustomer}

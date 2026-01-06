@@ -15,12 +15,13 @@ public interface CustomerRepo extends JpaRepository<Customer, String> {
 
     @Query("SELECT c " + 
         "FROM Customer c " + 
-        "WHERE (:fullName IS NULL OR LOWER(c.fullName) LIKE LOWER(CONCAT('%', :fullName, '%'))) " + 
+        "WHERE c.user.role = iuh.fit.backend.entity.UserRole.MEMBER " +
+        "AND (:fullName IS NULL OR LOWER(c.fullName) LIKE LOWER(CONCAT('%', :fullName, '%'))) " +
         "AND (:email IS NULL OR c.user.email = :email) " + 
         "AND (:phone IS NULL OR c.phone = :phone) " + 
         "AND (:minPoint IS NULL OR c.points >= :minPoint) " + 
         "AND (:maxPoint IS NULL OR c.points <= :maxPoint) " +
-            "AND (:status IS NULL OR c.user.status = :status)"
+        "AND (:status IS NULL OR c.user.status = :status)"
     )
     Page<Customer> searchAdvance(@Param("fullName") String fullName, @Param("email") String email, @Param("phone") String phone, @Param("minPoint") Double minPoint, @Param("maxPoint") Double maxPoint, @Param("status") Boolean status, Pageable pageable);
 }

@@ -1,31 +1,21 @@
-package iuh.fit.backend.entity;
+package iuh.fit.backend.dto;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import iuh.fit.backend.entity.Gender;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-
-@Entity
-@Table(name = "persons")
-@Inheritance(strategy = InheritanceType.JOINED)
-public class Person {
-
-    @Id
-    @Column(name = "user_id")
-    private String userId;
-
-    @OneToOne
-    @MapsId
-    @JoinColumn(name = "user_id")
-    private User user;
+public class StaffUpdateRequest {
     @NotBlank(message = "Tên đầy đủ không được để trống")
     @Pattern(
             regexp = "^(?:[A-ZÀ-Ỹ][a-zà-ỹ]*)(?:\\s+[A-ZÀ-Ỹ][a-zà-ỹ]*)+$",
@@ -37,6 +27,16 @@ public class Person {
             regexp = "^(03|05|07|08|09|01)+([0-9]{8})$",
             message = "Số điện thoại không hợp lệ"
     )
-    @Column(unique = true)
     private String phone;
+    @NotBlank(message = "Số CCCD không được để trống")
+    @Pattern(
+            regexp = "^\\d{12}$",
+            message = "Số CCCD phải gồm đúng 12 chữ số"
+    )
+    private String identificationId;
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+    @NotNull(message = "Ngày sinh không được để trống")
+    @Past(message = "Ngày sinh phải là ngày trong quá khứ")
+    private LocalDate dateOfBirth;
 }

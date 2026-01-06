@@ -394,11 +394,18 @@ const ReviewManagement = () => {
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button onClick={handleSearch}>
+              <Button
+                onClick={handleSearch}
+                className="bg-(--color-primary) hover:bg-[#2a4b70] cursor-pointer"
+              >
                 <Search className="w-4 h-4 mr-1" />
                 Tìm kiếm
               </Button>
-              <Button variant="outline" onClick={handleClear}>
+              <Button
+                variant="outline"
+                onClick={handleClear}
+                className="cursor-pointer"
+              >
                 <RotateCcw className="w-4 h-4 mr-1" />
                 Làm mới
               </Button>
@@ -425,6 +432,7 @@ const ReviewManagement = () => {
 
       {currentReview && (
         <DetailDialog
+          title={"Chi tiết Đánh giá"}
           open={openDetail}
           onClose={() => setOpenDetail(false)}
           data={currentReview}

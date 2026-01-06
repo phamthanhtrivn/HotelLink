@@ -7,11 +7,11 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-const DetailDialog = ({ open, onClose, data, fields }) => (
+const DetailDialog = ({ title, open, onClose, data, fields }) => (
   <Dialog open={open} onOpenChange={onClose}>
     <DialogContent className="max-w-lg">
       <DialogHeader>
-        <DialogTitle>Chi tiết dịch vụ</DialogTitle>
+        <DialogTitle>{title}</DialogTitle>
       </DialogHeader>
 
       <div className="space-y-3">

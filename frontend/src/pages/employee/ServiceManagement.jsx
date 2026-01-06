@@ -218,7 +218,7 @@ const ServiceManagement = () => {
         actions={
           <Button
             onClick={handleAdd}
-            className="bg-(--color-primary) hover:bg-[#2a4b70]"
+            className="bg-(--color-primary) hover:bg-[#2a4b70] cursor-pointer"
           >
             <PlusCircleIcon className="mr-1" />
             Thêm dịch vụ
@@ -286,11 +286,18 @@ const ServiceManagement = () => {
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button onClick={handleSearch}>
+              <Button
+                onClick={handleSearch}
+                className="cursor-pointer bg-(--color-primary) hover:bg-[#2a4b70]"
+              >
                 <Search className="w-4 h-4 mr-1" />
                 Tìm kiếm
               </Button>
-              <Button variant="outline" onClick={handleClear}>
+              <Button
+                variant="outline"
+                onClick={handleClear}
+                className="cursor-pointer"
+              >
                 <RotateCcw className="w-4 h-4 mr-1" />
                 Làm mới
               </Button>
@@ -320,6 +327,7 @@ const ServiceManagement = () => {
 
       {currentService && (
         <DetailDialog
+          title={"Chi tiết Dịch vụ"}
           open={openDetail}
           onClose={() => setOpenDetail(false)}
           data={currentService}
@@ -330,7 +338,7 @@ const ServiceManagement = () => {
       <EditCreateModal
         open={openForm}
         onClose={() => setOpenForm(false)}
-        title={currentService ? "Cập nhật dịch vụ" : "Thêm dịch vụ"}
+        title={currentService ? "Cập nhật Dịch vụ" : "Thêm Dịch vụ"}
         onSubmit={handleSaveAndUpdate}
         loading={saveLoading}
       >
