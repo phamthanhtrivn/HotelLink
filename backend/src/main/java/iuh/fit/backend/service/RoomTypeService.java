@@ -106,4 +106,10 @@ public class RoomTypeService {
 
         return new APIResponse<>(true, HTTPResponse.SC_OK, "Lấy chi tiết loại phòng thành công", r);
     }
+
+    public APIResponse<List<RoomType>> findAllActiveRoomTypes() {
+        List<RoomType> result = roomTypeRepo.findRoomTypeByStatusTrue(true);
+
+        return new APIResponse<>(true, HTTPResponse.SC_OK, "Lấy danh sách loại phòng thành công", result);
+    }
 }

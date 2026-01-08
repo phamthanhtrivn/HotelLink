@@ -19,4 +19,12 @@ export const roomTypeService = {
     const res = await api.get(`/public/room-types/${id}`);
     return res.data;
   },
+  activeRoomTypes: async () => {
+    const res = await api.get(`/admin/room-types/active`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      }
+    })
+    return res.data;
+  }
 };

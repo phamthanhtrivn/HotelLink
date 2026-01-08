@@ -2,9 +2,6 @@ package iuh.fit.backend.repository;
 
 import iuh.fit.backend.entity.Gender;
 import iuh.fit.backend.entity.Staff;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

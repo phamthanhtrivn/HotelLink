@@ -57,4 +57,6 @@ public interface RoomTypeRepo extends JpaRepository<RoomType, String> {
     WHERE rt.id IN :ids
     """)
     List<Object[]> findPicturesByRoomTypeIds(@Param("ids") List<String> ids);
+
+    List<RoomType> findRoomTypeByStatusTrue(boolean status);
 }
