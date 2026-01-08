@@ -16,11 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  FLOOR_OPTIONS,
-  ROOM_STATUS,
-  ROOM_TYPE_OPTIONS,
-} from "@/constants/roomConstants";
+import { FLOOR_OPTIONS, ROOM_STATUS, ROOM_TYPE_OPTIONS } from "@/constants/roomConstants";
 import { STATUS_OPTIONS } from "@/constants/StatusConstants";
 import { formatDateTimeForCustomer } from "@/helpers/dateHelpers";
 import { roomService } from "@/services/roomService";
@@ -273,7 +269,7 @@ const RoomManagement = () => {
   return (
     <>
       <AdminManagementLayout
-        title="Quản lý Nhân viên"
+        title="Quản lý Phòng"
         filters={
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -420,7 +416,9 @@ const RoomManagement = () => {
                   className={errors?.roomNumber && "border-red-500"}
                 />
                 {errors?.roomNumber && (
-                  <p className="text-sm text-red-500">{errors?.roomNumber || "Số phòng đã tồn tại"}</p>
+                  <p className="text-sm text-red-500">
+                    {errors?.roomNumber || "Số phòng đã tồn tại"}
+                  </p>
                 )}
               </div>
 

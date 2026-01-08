@@ -9,19 +9,17 @@ import { Button } from "@/components/ui/button";
 
 const DetailDialog = ({ title, open, onClose, data, fields }) => (
   <Dialog open={open} onOpenChange={onClose}>
-    <DialogContent className="max-w-lg">
+    <DialogContent className="max-w-4xl w-full max-h-[90vh] overflow-y-auto">
       <DialogHeader>
         <DialogTitle>{title}</DialogTitle>
       </DialogHeader>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {fields.map((f) => (
-          <div key={f.key} className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">{f.label}: </span>
-            <div className="font-medium text-right">
-              {f.render
-                ? f.render(data)
-                : data?.[f.key] ?? "—"}
+          <div key={f.key} className="space-y-1">
+            <div className="text-xs text-muted-foreground">{f.label}</div>
+            <div className="font-medium">
+              {f.render ? f.render(data) : data?.[f.key] ?? "—"}
             </div>
           </div>
         ))}
@@ -35,6 +33,5 @@ const DetailDialog = ({ title, open, onClose, data, fields }) => (
     </DialogContent>
   </Dialog>
 );
-
 
 export default DetailDialog;

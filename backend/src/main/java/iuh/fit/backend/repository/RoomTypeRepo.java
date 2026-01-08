@@ -59,4 +59,27 @@ public interface RoomTypeRepo extends JpaRepository<RoomType, String> {
     List<Object[]> findPicturesByRoomTypeIds(@Param("ids") List<String> ids);
 
     List<RoomType> findRoomTypeByStatusTrue(boolean status);
+
+    @Query("SELECT rt " +
+            "FROM RoomType rt " +
+            "WHERE (:name IS NULL OR LOWER(rt.name) LIKE LOWER(CONCAT('%', :name, '%'))) " +
+            "AND (:minPrice IS NULL OR rt.price >= :minPrice) " +
+            "AND (:maxPrice IS NULL OR rt.price <= :maxPrice) " +
+            "AND (:minCapacity IS NULL OR rt.guestCapacity >= :minCapacity) "+
+            "AND (:maxCapacity IS NULL OR rt.guestCapacity <= :maxCapacity) "+
+            "AND (:minArea IS NULL OR rt.area >= :minArea) " +
+            "AND (:maxArea IS NULL OR rt.area <= :maxArea) " +
+            "AND (:status IS NULL OR rt.status = :status)"
+    )
+    Page<RoomType> searchAdvance(
+            @Param("name") String name,
+            @Param("minPrice") Double minPrice,
+            @Param("maxPrice") Double maxPrice,
+            @Param("minCapacity") Integer minCapacity,
+            @Param("maxCapacity") Integer maxCapacity,
+            @Param("minArea") Double minArea,
+            @Param("maxArea") Double maxArea,
+            @Param("status") Boolean status,
+            Pageable pageable
+    );
 }

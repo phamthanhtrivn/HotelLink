@@ -262,8 +262,6 @@ const StaffManagement = () => {
       dateOfBirth: formData.dateOfBirth,
     };
 
-        console.log(payloadAdd);
-
     const payloadUpdate = {
       fullName: formData.fullName,
       phone: formData.phone,

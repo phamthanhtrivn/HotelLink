@@ -23,8 +23,30 @@ export const roomTypeService = {
     const res = await api.get(`/admin/room-types/active`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
-      }
-    })
+      },
+    });
     return res.data;
-  }
+  },
+  searchAdvance: async (params) => {
+    const res = await api.get(`/admin/room-types`, {
+      params,
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    return res.data;
+  },
+  updateStatus: async (id, status) => {
+    const res = await api.patch(
+      `/admin/room-types/${id}/status`,
+      null,
+      {
+        params: { status },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    return res.data;
+  },
 };
