@@ -37,16 +37,20 @@ export const roomTypeService = {
     return res.data;
   },
   updateStatus: async (id, status) => {
-    const res = await api.patch(
-      `/admin/room-types/${id}/status`,
-      null,
-      {
-        params: { status },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
+    const res = await api.patch(`/admin/room-types/${id}/status`, null, {
+      params: { status },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    return res.data;
+  },
+  updateRoomType: async (id, formData) => {
+    const res = await api.put(`/admin/room-types/${id}`, formData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
     return res.data;
   },
 };

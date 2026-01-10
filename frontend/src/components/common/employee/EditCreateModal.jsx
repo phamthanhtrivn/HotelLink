@@ -18,7 +18,7 @@ const EditCreateModal = ({ open, onClose, title, children, onSubmit, className, 
       {children}
 
       <DialogFooter>
-        <Button onClick={onSubmit} className="cursor-pointer bg-(--color-primary) hover:bg-[#2a4b70]">
+        <Button disabled={loading} onClick={onSubmit} className="cursor-pointer bg-(--color-primary) hover:bg-[#2a4b70]">
            {loading && <Loader2 className="animate-spin h-5 w-5"/>} Lưu
         </Button>
       </DialogFooter>

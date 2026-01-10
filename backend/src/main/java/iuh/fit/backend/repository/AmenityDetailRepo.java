@@ -2,6 +2,7 @@ package iuh.fit.backend.repository;
 
 import iuh.fit.backend.entity.AmenityDetail;
 import iuh.fit.backend.entity.AmenityDetailId;
+import iuh.fit.backend.entity.RoomType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,4 +28,6 @@ public interface AmenityDetailRepo extends JpaRepository<AmenityDetail, AmenityD
         WHERE ad.roomType.id IN :roomTypeIds
     """)
     List<AmenityDetail> findByRoomTypeIds(@Param("roomTypeIds") List<String> roomTypeIds);
+
+    void deleteByRoomType(RoomType roomType);
 }

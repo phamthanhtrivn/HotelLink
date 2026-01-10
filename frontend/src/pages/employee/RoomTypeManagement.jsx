@@ -9,6 +9,7 @@ import ImagePreviewDialog from "@/components/common/employee/ImagePreviewDialog"
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -17,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { Textarea } from "@/components/ui/textarea";
 import {
   AREA_RANGE,
   CAPACITY_RANGE,
@@ -25,6 +27,8 @@ import {
 import { STATUS_OPTIONS } from "@/constants/StatusConstants";
 import { formatVND } from "@/helpers/currencyFormatter";
 import { formatDateTimeForCustomer } from "@/helpers/dateHelpers";
+import { amenityService } from "@/services/amenityService";
+import { bedService } from "@/services/bedService";
 import { roomTypeService } from "@/services/roomTypeService";
 import { Loader2, RotateCcw, Search } from "lucide-react";
 import React, { useEffect, useState } from "react";
@@ -160,10 +164,12 @@ const RoomTypeManagement = () => {
       key: "updatedAt",
       label: "Ngày cập nhật",
       render: (i) => formatDateTimeForCustomer(i?.updatedAt) || "-",
-    }
+    },
   ];
 
   const [roomTypes, setRoomTypes] = useState([]);
+  const [allAmenities, setAllAmenities] = useState([]);
+  const [allBeds, setAllBeds] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -184,12 +190,42 @@ const RoomTypeManagement = () => {
   const [previewImage, setPreviewImage] = useState(null);
   const [openPreview, setOpenPreview] = useState(false);
 
-  const [formData, setFormData] = useState({
-    // roomNumber: "",
-    // floor: "",
-    // roomTypeId: "",
+  const [updateForm, setUpdateForm] = useState({
+    price: "",
+    description: "",
+    status: true,
+    amenities: [],
+    beds: [],
   });
+  const [existingImages, setExistingImages] = useState([]);
+  const [removedImages, setRemovedImages] = useState([]);
+  const [newImages, setNewImages] = useState([]);
+
+  const groupedAmenities = allAmenities.reduce((acc, a) => {
+    const typeName = a?.amenityType?.name || "Khác";
+
+    acc[typeName] = acc[typeName] || [];
+    acc[typeName].push(a);
+
+    return acc;
+  }, {});
+
   const [errors, setErrors] = useState({});
+
+  const fetchaMasterData = async () => {
+    try {
+      const [amenitiesRes, bedsRes] = await Promise.all([
+        amenityService.getAll(),
+        bedService.getAll(),
+      ]);
+
+      setAllAmenities(amenitiesRes.data);
+      setAllBeds(bedsRes.data);
+    } catch (error) {
+      console.log(error);
+      toast.error("Đã có lỗi xảy ra khi tải dữ liệu cập nhật.");
+    }
+  };
 
   const fetchRoomTypes = async (
     pageIndex = 0,
@@ -301,48 +337,86 @@ const RoomTypeManagement = () => {
   };
 
   const handleUpdate = (roomType) => {
-    // setCurrentRoomType(roomType);
-    // setFormData({
-    //   roomNumber: roomType.roomNumber,
-    //   floor: roomType.floor,
-    //   roomTypeId: roomType.roomTypeId,
-    // });
-    // setErrors({});
-    // setOpenForm(true);
+    setCurrentRoomType(roomType);
+
+    setUpdateForm({
+      price: roomType.price,
+      description: roomType.description,
+      status: roomType.status,
+      amenities: roomType.amenities.map((a) => a.id),
+      beds: roomType.beds.map((b) => ({
+        bedId: b.id,
+        quantity: b.quantity,
+      })),
+    });
+
+    setExistingImages(roomType.pictures);
+    setRemovedImages([]);
+    setNewImages([]);
+    setErrors({});
+
+    setOpenForm(true);
   };
 
   const handleSaveAndUpdate = async () => {
-    // setErrors({});
-    // const payloadUpdate = {
-    //   roomNumber: formData.roomNumber,
-    //   floor: formData.floor,
-    //   roomTypeId: formData.roomTypeId,
-    // };
-    // try {
-    //   setUpdateLoading(true);
-    //   if (currentRoom) {
-    //     const res = await roomService.updateRoom(currentRoom.id, payloadUpdate);
-    //     if (res.success) {
-    //       toast.success(res.message);
-    //       setOpenForm(false);
-    //       fetchRooms(0);
-    //       setPage(0);
-    //     } else {
-    //       toast.error(res.message);
-    //       setErrors(res.data);
-    //     }
-    //   }
-    // } catch (err) {
-    //   console.log(err);
-    //   toast.error("Lỗi khi lưu dữ liệu");
-    // } finally {
-    //   setUpdateLoading(false);
-    // }
+    try {
+      setUpdateLoading(true);
+
+      const formData = new FormData();
+
+      const payload = {
+        price: Number(updateForm.price),
+        description: updateForm.description,
+        status: updateForm.status,
+        amenities: updateForm.amenities.map((a) => ({
+          amenityId: a,
+        })),
+        beds: updateForm.beds,
+        keepImages: existingImages,
+        deleteImages: removedImages,
+      };
+
+      formData.append(
+        "data",
+        new Blob([JSON.stringify(payload)], {
+          type: "application/json",
+        })
+      );
+
+      newImages.forEach((file) => {
+        formData.append("images", file);
+      });
+
+      const res = await roomTypeService.updateRoomType(
+        currentRoomType.id,
+        formData
+      );
+
+      if (res.success) {
+        toast.success(res.message);
+        setOpenForm(false);
+        fetchRoomTypes(page);
+      } else {
+        toast.error(res.message);
+        if (res?.data) {
+          setErrors(res.data);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Lỗi khi cập nhật loại phòng");
+    } finally {
+      setUpdateLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchRoomTypes(page);
   }, [page]);
+
+  useEffect(() => {
+    fetchaMasterData();
+  }, []);
 
   if (loading)
     return (
@@ -494,93 +568,224 @@ const RoomTypeManagement = () => {
 
       <EditCreateModal
         open={openForm}
-        onClose={() => setOpenForm(false)}
+        onClose={() => {
+          setOpenForm(false);
+          setErrors({});
+        }}
         title={currentRoomType && `Cập nhật Loại phòng ${currentRoomType.id}`}
         onSubmit={handleSaveAndUpdate}
         loading={updateLoading}
+        className="max-w-4xl w-full max-h-[90vh] overflow-y-auto"
       >
-        <div className="space-y-4">
-          <div className="space-y-2 flex justify-end">
-            {currentRoomType && (
+        {currentRoomType && (
+          <div className="space-y-6">
+            {/* ===== Trạng thái ===== */}
+            <div className="flex justify-end">
               <Badge
-                className={`cursor-pointer italic ${
-                  currentRoomType?.status ? "bg-green-600" : "bg-red-600"
+                className={`italic ${
+                  updateForm.status ? "bg-green-600" : "bg-red-600"
                 }`}
               >
-                {currentRoomType?.status ? "Hoạt động" : "Bị khóa"}
+                {updateForm.status ? "Hoạt động" : "Bị khóa"}
               </Badge>
-            )}
+            </div>
+
+            {/* ===== Giá phòng ===== */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">
+                Giá phòng <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                type="number"
+                value={updateForm.price}
+                onChange={(e) =>
+                  setUpdateForm({ ...updateForm, price: e.target.value })
+                }
+                className={errors.price ? "border-red-500" : ""}
+                placeholder="Nhập giá phòng"
+              />
+              {errors.price && (
+                <p className="text-sm text-red-500">{errors.price}</p>
+              )}
+            </div>
+
+            {/* ===== Mô tả ===== */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">
+                Mô tả <span className="text-red-500">*</span>
+              </Label>
+              <Textarea
+                rows={5}
+                value={updateForm.description}
+                onChange={(e) =>
+                  setUpdateForm({ ...updateForm, description: e.target.value })
+                }
+                className={`w-full rounded-md border p-2 text-sm resize-none ${
+                  errors.description ? "border-red-500" : ""
+                }`}
+                placeholder="Mô tả chi tiết loại phòng"
+              />
+              {errors.description && (
+                <p className="text-sm text-red-500">{errors.description}</p>
+              )}
+            </div>
+
+            {/* ===== Trạng thái (Select) ===== */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Trạng thái</Label>
+              <Select
+                value={String(updateForm.status)}
+                onValueChange={(v) =>
+                  setUpdateForm({ ...updateForm, status: v === "true" })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="true">Hoạt động</SelectItem>
+                  <SelectItem value="false">Bị khóa</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* ===== Ảnh hiện có ===== */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Hình ảnh hiện tại</Label>
+              <div className="grid grid-cols-3 gap-3">
+                {existingImages.map((url) => (
+                  <div key={url} className="relative group">
+                    <img
+                      src={url}
+                      className="h-24 w-full rounded-lg object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setExistingImages(
+                          existingImages.filter((i) => i !== url)
+                        );
+                        setRemovedImages([...removedImages, url]);
+                      }}
+                      className="absolute top-1 right-1 hidden group-hover:block bg-red-600 text-white rounded-full w-6 h-6 text-xs cursor-pointer"
+                    >
+                      x
+                    </button>
+                  </div>
+                ))}
+              </div>
+              {errors.images && (
+                <p className="text-sm text-red-500">{errors.images}</p>
+              )}
+            </div>
+
+            {/* ===== Ảnh mới ===== */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Thêm hình ảnh mới</Label>
+              <Input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={(e) =>
+                  setNewImages([...newImages, ...Array.from(e.target.files)])
+                }
+              />
+            </div>
+
+            {/* ===== Tiện nghi ===== */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Tiện nghi</Label>
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(groupedAmenities).map(([type, items]) => (
+                  <div key={type} className="space-y-2">
+                    <div className="text-xs font-semibold uppercase text-muted-foreground">
+                      {type}
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      {items.map((a) => {
+                        const active = updateForm.amenities.includes(a.id);
+
+                        return (
+                          <Badge
+                            key={a.id}
+                            className={`cursor-pointer transition ${
+                              active
+                                ? "bg-(--color-primary)"
+                                : "bg-gray-200 text-gray-600"
+                            }`}
+                            onClick={() =>
+                              setUpdateForm({
+                                ...updateForm,
+                                amenities: active
+                                  ? updateForm.amenities.filter(
+                                      (id) => id !== a.id
+                                    )
+                                  : [...updateForm.amenities, a.id],
+                              })
+                            }
+                          >
+                            {a.name}
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {errors.amenities && (
+                <p className="text-sm text-red-500">{errors.amenities}</p>
+              )}
+            </div>
+
+            {/* ===== Giường ===== */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Loại giường</Label>
+              {allBeds.map((bed) => {
+                const selected = updateForm.beds.find(
+                  (b) => b.bedId === bed.id
+                );
+
+                return (
+                  <div key={bed.id} className="flex items-center gap-4">
+                    <div className="w-40 text-sm">
+                      <div className="font-medium">{bed.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {bed.description}
+                      </div>
+                    </div>
+
+                    <Input
+                      type="number"
+                      min={0}
+                      value={selected?.quantity || 0}
+                      onChange={(e) => {
+                        const qty = Number(e.target.value);
+                        let beds = [...updateForm.beds];
+
+                        if (qty === 0) {
+                          beds = beds.filter((b) => b.bedId !== bed.id);
+                        } else if (selected) {
+                          beds = beds.map((b) =>
+                            b.bedId === bed.id ? { ...b, quantity: qty } : b
+                          );
+                        } else {
+                          beds.push({ bedId: bed.id, quantity: qty });
+                        }
+
+                        setUpdateForm({ ...updateForm, beds });
+                      }}
+                      className="w-24"
+                    />
+                  </div>
+                );
+              })}
+              {errors.beds && (
+                <p className="text-sm text-red-500">{errors.beds}</p>
+              )}
+            </div>
           </div>
-
-          {currentRoomType && (
-            <>
-              {/* <div className="space-y-2">
-                <Label>
-                  Số phòng <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  value={formData.roomNumber}
-                  onChange={(e) =>
-                    setFormData({ ...formData, roomNumber: e.target.value })
-                  }
-                  className={errors?.roomNumber && "border-red-500"}
-                />
-                {errors?.roomNumber && (
-                  <p className="text-sm text-red-500">
-                    {errors?.roomNumber || "Số phòng đã tồn tại"}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label>
-                  Số tầng <span className="text-red-500">*</span>
-                </Label>
-                <Select
-                  value={formData.floor}
-                  onValueChange={(v) => setFormData({ ...formData, floor: v })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Chọn số tầng" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {FLOOR_OPTIONS.map((t) => (
-                      <SelectItem key={t.value} value={t.value}>
-                        {t.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors?.floor && (
-                  <p className="text-sm text-red-500">{errors?.floor}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label>
-                  Loại phòng <span className="text-red-500">*</span>
-                </Label>
-                <Select
-                  value={formData.roomTypeId}
-                  onValueChange={(v) =>
-                    setFormData({ ...formData, roomTypeId: v })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Chọn loại phòng" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {roomTypes?.map((r) => (
-                      <SelectItem key={r.id} value={r.id}>
-                        {r.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div> */}
-            </>
-          )}
-        </div>
+        )}
       </EditCreateModal>
     </>
   );

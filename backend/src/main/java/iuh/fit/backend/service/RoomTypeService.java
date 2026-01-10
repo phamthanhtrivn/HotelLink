@@ -2,17 +2,15 @@ package iuh.fit.backend.service;
 
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import iuh.fit.backend.dto.*;
-import iuh.fit.backend.entity.AmenityDetail;
-import iuh.fit.backend.entity.BedDetail;
-import iuh.fit.backend.entity.RoomType;
-import iuh.fit.backend.repository.AmenityDetailRepo;
-import iuh.fit.backend.repository.BedDetailRepo;
-import iuh.fit.backend.repository.RoomTypeRepo;
+import iuh.fit.backend.entity.*;
+import iuh.fit.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -24,6 +22,9 @@ public class RoomTypeService {
     private final RoomTypeRepo roomTypeRepo;
     private final BedDetailRepo bedDetailRepo;
     private final AmenityDetailRepo amenityDetailRepo;
+    private final AmenityRepo amenityRepo;
+    private final BedRepo bedRepo;
+    private final CloudinaryService cloudinaryService;
 
     public Page<RoomTypeAvailabilityDTO> searchRoomTypes(
             int adults,
@@ -217,4 +218,121 @@ public class RoomTypeService {
 
         return response;
     }
+
+    @Transactional
+    public APIResponse<RoomType> updateRoomTypeInfo(String roomTypeId, RoomTypeUpdateRequest request, List<MultipartFile> newImages) {
+        APIResponse<RoomType> response = new APIResponse<>();
+        response.setSuccess(false);
+        response.setData(null);
+
+        Optional<RoomType> roomTypeOpt = roomTypeRepo.findById(roomTypeId);
+        if (roomTypeOpt.isEmpty()) {
+            response.setStatus(HTTPResponse.SC_NOT_FOUND);
+            response.setMessage("Loại phòng không tồn tại");
+            return response;
+        }
+
+        RoomType roomType = roomTypeOpt.get();
+
+        updateBasicInfo(roomType, request);
+        updateImages(roomType, request, newImages);
+        updateAmenities(roomType, request.getAmenities());
+        updateBeds(roomType, request.getBeds());
+        roomType.setUpdatedAt(LocalDateTime.now());
+
+        RoomType savedRoomType = roomTypeRepo.save(roomType);
+        response.setSuccess(true);
+        response.setStatus(HTTPResponse.SC_OK);
+        response.setMessage("Cập nhật thông tin loại phòng thành công");
+        response.setData(savedRoomType);
+
+        return response;
+    }
+
+    private void updateBasicInfo(
+            RoomType roomType,
+            RoomTypeUpdateRequest request
+    ) {
+        roomType.setPrice(request.getPrice());
+        roomType.setDescription(request.getDescription());
+        roomType.setStatus(request.getStatus());
+    }
+
+
+    private void updateImages(
+            RoomType roomType,
+            RoomTypeUpdateRequest request,
+            List<MultipartFile> newImages
+    ) {
+        if (request.getDeleteImages() != null) {
+            request.getDeleteImages().forEach(cloudinaryService::deleteByUrl);
+        }
+
+        List<String> uploadedUrls = new ArrayList<>();
+        if (newImages != null) {
+            for (MultipartFile file : newImages) {
+                uploadedUrls.add(
+                        cloudinaryService.uploadImage(file)
+                );
+            }
+        }
+
+        List<String> finalImages = new ArrayList<>();
+
+        if (request.getKeepImages() != null)
+            finalImages.addAll(request.getKeepImages());
+
+        finalImages.addAll(uploadedUrls);
+
+        roomType.setPictures(finalImages);
+    }
+
+    private void updateAmenities(
+            RoomType roomType,
+            List<AmenityRoomTypeUpdate> amenities
+    ) {
+        amenityDetailRepo.deleteByRoomType(roomType);
+
+        if (amenities == null) return;
+
+        for (AmenityRoomTypeUpdate dto : amenities) {
+            Amenity amenity = amenityRepo.findById(dto.getAmenityId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy tiện nghi: " + dto.getAmenityId()));
+
+            AmenityDetail detail = new AmenityDetail();
+            detail.setAmenityDetailId(
+                    new AmenityDetailId(roomType.getId(), amenity.getId())
+            );
+            detail.setRoomType(roomType);
+            detail.setAmenity(amenity);
+
+            amenityDetailRepo.save(detail);
+        }
+    }
+
+    private void updateBeds(
+            RoomType roomType,
+            List<BedRoomTypeUpdate> beds
+    ) {
+        bedDetailRepo.deleteByRoomType(roomType);
+
+        if (beds == null) return;
+
+        for (BedRoomTypeUpdate dto : beds) {
+            Bed bed = bedRepo.findById(dto.getBedId())
+                    .orElseThrow(() -> new RuntimeException("Bed not found"));
+
+            BedDetail detail = new BedDetail();
+            detail.setBedDetailId(
+                    new BedDetailId(roomType.getId(), bed.getId())
+            );
+            detail.setRoomType(roomType);
+            detail.setBed(bed);
+            detail.setBedQuantity(dto.getQuantity());
+
+            bedDetailRepo.save(detail);
+        }
+    }
+
+
 }

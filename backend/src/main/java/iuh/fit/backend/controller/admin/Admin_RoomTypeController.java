@@ -1,10 +1,15 @@
 package iuh.fit.backend.controller.admin;
 
 import iuh.fit.backend.dto.APIResponse;
+import iuh.fit.backend.dto.RoomTypeUpdateRequest;
 import iuh.fit.backend.service.RoomTypeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,6 +43,19 @@ public class Admin_RoomTypeController {
     @PatchMapping("/{roomTypeId}/status")
     public ResponseEntity<APIResponse<?>> updateRoomTypeStatus(@PathVariable String roomTypeId, @RequestParam Boolean status) {
         APIResponse<?> response = roomTypeService.updateStatus(roomTypeId, status);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @PutMapping(
+            value = "/{roomTypeId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<APIResponse<?>> updateRoomTypeInfo(
+            @PathVariable String roomTypeId,
+            @RequestPart("data")RoomTypeUpdateRequest request,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images
+            ) {
+        APIResponse<?> response = roomTypeService.updateRoomTypeInfo(roomTypeId, request, images);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 }
