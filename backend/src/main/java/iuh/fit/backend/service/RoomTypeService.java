@@ -24,6 +24,7 @@ public class RoomTypeService {
     private final AmenityDetailRepo amenityDetailRepo;
     private final AmenityRepo amenityRepo;
     private final BedRepo bedRepo;
+    private final RoomRepo roomRepo;
     private final CloudinaryService cloudinaryService;
 
     public Page<RoomTypeAvailabilityDTO> searchRoomTypes(
@@ -332,6 +333,132 @@ public class RoomTypeService {
 
             bedDetailRepo.save(detail);
         }
+    }
+
+    @Transactional
+    public APIResponse<Page<RoomTypeAvailabilityForStaff>> searchRoomTypesForStaff(
+            int adults,
+            int children,
+            LocalDateTime checkIn,
+            LocalDateTime checkOut,
+            String roomTypeName,
+            Pageable pageable
+    ) {
+        int convertedChildren = (int) Math.round(children / 3.0);
+        int effectiveGuestCount = adults + convertedChildren;
+
+        // 1. Lấy danh sách RoomType còn phòng (y chang online)
+        Page<RoomTypeAvailabilityDTO> page =
+                roomTypeRepo.searchAvailableRoomTypes(
+                        effectiveGuestCount,
+                        checkIn,
+                        checkOut,
+                        roomTypeName,
+                        pageable
+                );
+
+        // 2. Lấy images cho RoomType
+        List<String> roomTypeIds = page.getContent()
+                .stream()
+                .map(RoomTypeAvailabilityDTO::getId)
+                .toList();
+
+        Map<String, List<String>> pictureMap = new HashMap<>();
+        if (!roomTypeIds.isEmpty()) {
+            List<Object[]> rows =
+                    roomTypeRepo.findPicturesByRoomTypeIds(roomTypeIds);
+
+            for (Object[] row : rows) {
+                String roomTypeId = (String) row[0];
+                String picture = (String) row[1];
+                pictureMap
+                        .computeIfAbsent(roomTypeId, k -> new ArrayList<>())
+                        .add(picture);
+            }
+        }
+
+        List<BedDetail> bedDetails = bedDetailRepo.findByRoomTypeIds(roomTypeIds);
+        List<AmenityDetail> amenityDetails = amenityDetailRepo.findByRoomTypeIds(roomTypeIds);
+
+        Map<String, List<BedDetail>> bedMap =
+                bedDetails.stream()
+                        .collect(Collectors.groupingBy(
+                                bd -> bd.getRoomType().getId()
+                        ));
+
+        Map<String, List<AmenityDetail>> amenityMap =
+                amenityDetails.stream()
+                        .collect(Collectors.groupingBy(
+                                ad -> ad.getRoomType().getId()
+                        ));
+
+        LocalDateTime now = LocalDateTime.now();
+
+        // 3. Map sang DTO dành cho staff
+        Page<RoomTypeAvailabilityForStaff> staffPage =
+                page.map(rt -> {
+
+                    // Lấy danh sách phòng cụ thể
+                    List<Room> rooms =
+                            roomRepo.findAvailableRooms(
+                                    rt.getId(),
+                                    checkIn,
+                                    checkOut
+                            );
+
+                    // Nếu check-in là hôm nay / hiện tại -> chỉ lấy AVAILABLE
+//                    if (!checkIn.isAfter(now)) {
+//                        rooms = rooms.stream()
+//                                .filter(r -> r.getRoomStatus() == RoomStatus.AVAILABLE)
+//                                .toList();
+//                    }
+
+                    List<RoomAvailabilityForStaff> roomDTOs = rooms.stream()
+                            .map(r -> new RoomAvailabilityForStaff(
+                                    r.getId(),
+                                    r.getRoomNumber(),
+                                    r.getFloor(),
+                                    r.getRoomStatus()
+                            ))
+                            .toList();
+
+                    return new RoomTypeAvailabilityForStaff(
+                                                rt.getId(),
+                                                rt.getName(),
+                                                rt.getPrice(),
+                                                rt.getGuestCapacity(),
+                                                rt.getArea(),
+                                                rt.getDescription(),
+                                                pictureMap.getOrDefault(rt.getId(), List.of()),
+                                                roomDTOs.size(),
+                                                roomDTOs,
+                                                bedMap.getOrDefault(rt.getId(), List.of())
+                                                        .stream()
+                                                        .map(bd -> new BedResponse(
+                                                                bd.getBed().getId(),
+                                                                bd.getBed().getName(),
+                                                                bd.getBed().getDescription(),
+                                                                bd.getBedQuantity()
+                                                        ))
+                                                        .toList(),
+
+                                                amenityMap.getOrDefault(rt.getId(), List.of())
+                                                        .stream()
+                                                        .map(ad -> new AmenityResponse(
+                                                                ad.getAmenity().getId(),
+                                                                ad.getAmenity().getName(),
+                                                                ad.getAmenity().getAmenityType().getName()
+                                                        ))
+                                                        .toList()
+                                                );
+                });
+
+        return new APIResponse<>(
+                true,
+                HTTPResponse.SC_OK,
+                "Lấy danh sách loại phòng và phòng trống cho nhân viên thành công",
+                staffPage
+        );
     }
 
 

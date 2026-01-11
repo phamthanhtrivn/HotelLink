@@ -45,6 +45,8 @@ public class BookingService {
             return response;
         }
 
+        System.out.println(request);
+
         Booking booking = new Booking();
         booking.setId(idUtil.generateUniqueCodeForBooking());
         booking.setBookingSource(BookingSource.ONLINE);

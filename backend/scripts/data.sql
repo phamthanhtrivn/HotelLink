@@ -376,7 +376,7 @@ CREATE TABLE IF NOT EXISTS `rooms` (
                                        `created_at` datetime(6) DEFAULT NULL,
                                        `floor` varchar(255) NOT NULL,
                                        `room_number` varchar(255) NOT NULL,
-                                       `room_status` enum('AVAILABLE','CLEANING','MAINTENANCE','OCCUPIED') DEFAULT NULL,
+                                       `room_status` enum('AVAILABLE','CLEANING','MAINTENANCE') DEFAULT NULL,
                                        `status` bit(1) NOT NULL,
                                        `updated_at` datetime(6) DEFAULT NULL,
                                        `room_type_id` varchar(255) DEFAULT NULL,

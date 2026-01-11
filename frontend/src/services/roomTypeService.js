@@ -53,4 +53,21 @@ export const roomTypeService = {
     });
     return res.data;
   },
+  searchRoomAvailability: async (params) => {
+    const res = await api.get(`/staff/room-types/available-rooms`, {
+      params: {
+        checkIn: params.checkIn,
+        checkOut: params.checkOut,
+        adults: params.adults,
+        children: params.children,
+        roomTypeName: params.roomTypeName,
+        page: 0,
+        size: 20,
+      },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    return res.data;
+  },
 };

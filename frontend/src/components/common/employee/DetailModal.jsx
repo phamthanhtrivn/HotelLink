@@ -26,7 +26,7 @@ const DetailDialog = ({ title, open, onClose, data, fields }) => (
       </div>
 
       <DialogFooter>
-        <Button variant="outline" onClick={onClose}>
+        <Button variant="outline" onClick={onClose} className="cursor-pointer">
           Đóng
         </Button>
       </DialogFooter>
