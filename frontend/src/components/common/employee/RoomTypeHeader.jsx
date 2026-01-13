@@ -98,7 +98,7 @@ const RoomTypeHeader = ({ rt }) => {
 
   return (
     <>
-      <Card className="border-l-4 border-[#2a4b70] bg-muted/40">
+      <Card className="rounded-none rounded-t-xl shadow-none">
         <CardContent className="flex justify-between items-center py-4">
           <div className="space-y-1">
             <h2 className="text-xl font-semibold">{rt.name}</h2>

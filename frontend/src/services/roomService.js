@@ -26,5 +26,17 @@ export const roomService = {
       }
     })
     return res.data;
-  } 
+  },
+  updateRoomStatus: async (roomId, roomStatus) => {
+    const res = await api.patch(`/staff/rooms/${roomId}/room-status`, null, {
+       params: {
+        roomStatus,
+      },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+     
+    })
+    return res.data;
+  }
 };

@@ -41,4 +41,21 @@ public interface RoomRepo extends JpaRepository<Room, String> {
     );
 
     Room findByRoomNumber(String roomNumber);
+
+    @Query("SELECT COUNT(r) > 0 " +
+            "FROM Room r " +
+            "WHERE r.id = :roomId " +
+            "AND r.status = true " +
+            "AND r.id NOT IN ( " +
+            "   SELECT b.room.id   " +
+            "   FROM Booking b " +
+            "   WHERE b.bookingStatus NOT IN (iuh.fit.backend.entity.BookingStatus.CANCELLED, iuh.fit.backend.entity.BookingStatus.NO_SHOW) " +
+            "            AND b.checkIn < :checkOut " +
+            "            AND b.checkOut > :checkIn " +
+            ")")
+    boolean isRoomAvailable(
+            String roomId,
+            LocalDateTime checkIn,
+            LocalDateTime checkOut
+    );
 }

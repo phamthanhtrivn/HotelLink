@@ -4,6 +4,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import iuh.fit.backend.dto.APIResponse;
 import iuh.fit.backend.dto.RoomUpdateRequest;
 import iuh.fit.backend.entity.Room;
+import iuh.fit.backend.entity.RoomStatus;
 import iuh.fit.backend.entity.RoomType;
 import iuh.fit.backend.repository.RoomRepo;
 import iuh.fit.backend.repository.RoomTypeRepo;
@@ -96,6 +97,31 @@ public class RoomService {
 
         Room room = roomOpt.get();
         room.setStatus(status);
+        room.setUpdatedAt(LocalDateTime.now());
+
+        Room savedRoom = roomRepo.save(room);
+
+        response.setSuccess(true);
+        response.setStatus(HTTPResponse.SC_OK);
+        response.setMessage("Cập nhật trạng thái phòng thành công");
+        response.setData(savedRoom);
+
+        return response;
+    }
+
+    public APIResponse<Room> updateRoomStatus(String roomId, RoomStatus roomStatus) {
+        APIResponse<Room> response = new APIResponse<>();
+
+        Optional<Room> roomOpt = roomRepo.findById(roomId);
+        if (roomOpt.isEmpty()) {
+            response.setSuccess(false);
+            response.setStatus(HTTPResponse.SC_NOT_FOUND);
+            response.setMessage("Phòng không tồn tại");
+            return response;
+        }
+
+        Room room = roomOpt.get();
+        room.setRoomStatus(roomStatus);
         room.setUpdatedAt(LocalDateTime.now());
 
         Room savedRoom = roomRepo.save(room);

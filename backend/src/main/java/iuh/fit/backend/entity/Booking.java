@@ -61,6 +61,8 @@ public class Booking {
     private User updatedBy;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime actualCheckIn;
+    private LocalDateTime actualCheckOut;
     @PositiveOrZero(message = "Phí VAT phải lớn hơn hoặc bằng 0")
     private double vatFee;
     @PositiveOrZero(message = "Giảm giá lần đầu phải lớn hơn hoặc bằng 0")

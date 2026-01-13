@@ -34,7 +34,7 @@ export const timeAgo = (dateString) => {
   const date = new Date(dateString);
   const now = new Date();
   const diffInSeconds = Math.floor((now - date) / 1000);
-  
+
   // Các mốc thời gian
   const intervals = {
     năm: 31536000,
@@ -43,19 +43,19 @@ export const timeAgo = (dateString) => {
     ngày: 86400,
     giờ: 3600,
     phút: 60,
-    giây: 1
+    giây: 1,
   };
-  
+
   // Tìm khoảng thời gian phù hợp
   for (const [unit, secondsInUnit] of Object.entries(intervals)) {
     const diff = Math.floor(diffInSeconds / secondsInUnit);
-    
+
     if (diff >= 1) {
       return `cách đây ${diff} ${unit}`;
     }
   }
-  
-  return 'Vừa xong';
+
+  return "Vừa xong";
 };
 
 export const withCheckInTime = (date) => {
@@ -68,4 +68,17 @@ export const withCheckOutTime = (date) => {
   const d = new Date(date);
   d.setHours(12, 0, 0, 0);
   return d;
+};
+
+export const getDefaultCheckInDate = () => {
+  const date = new Date();
+  date.setHours(14, 0, 0, 0);
+  return date;
+};
+
+export const getDefaultCheckOutDate = () => {
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
+  date.setHours(12, 0, 0, 0);
+  return date;
 };

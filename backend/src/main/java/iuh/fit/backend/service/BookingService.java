@@ -3,9 +3,11 @@ package iuh.fit.backend.service;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import iuh.fit.backend.dto.APIResponse;
 import iuh.fit.backend.dto.BookingRequest;
+import iuh.fit.backend.dto.StaffBookingRequest;
 import iuh.fit.backend.entity.*;
 import iuh.fit.backend.repository.BookingRepo;
 import iuh.fit.backend.repository.CustomerRepo;
+import iuh.fit.backend.repository.RoomRepo;
 import iuh.fit.backend.repository.UserRepo;
 import iuh.fit.backend.util.IdUtil;
 import iuh.fit.backend.util.SecurityUtil;
@@ -27,6 +29,7 @@ import java.util.Optional;
 public class BookingService {
     private final BookingRepo bookingRepo;
     private final RoomService roomService;
+    private final RoomRepo roomRepo;
     private final CustomerRepo customerRepo;
     private final UserRepo userRepo;
     private final IdUtil idUtil;
@@ -44,8 +47,6 @@ public class BookingService {
             response.setData(null);
             return response;
         }
-
-        System.out.println(request);
 
         Booking booking = new Booking();
         booking.setId(idUtil.generateUniqueCodeForBooking());
@@ -68,6 +69,8 @@ public class BookingService {
         booking.setTotalPayment(request.getTotalPayment());
         booking.setUpdatedAt(null);
         booking.setVatFee(request.getVatFee());
+        booking.setActualCheckIn(null);
+        booking.setActualCheckOut(null);
 
         if (request.getUserId() != null) {
             Optional<Customer> customerOpt = customerRepo.findById(request.getUserId());
@@ -109,20 +112,6 @@ public class BookingService {
         response.setData(saveBooking);
 
         return response;
-    }
-
-    public void updatePointsForPointsDiscountBooking(String bookingId) {
-        Optional<Booking> bookingOpt = bookingRepo.findById(bookingId);
-        if (bookingOpt.isPresent()) {
-            Booking booking = bookingOpt.get();
-            Customer customer = booking.getCustomer();
-            int points = customer.getPoints();
-            if (booking.getPointDiscount() > 0) {
-                customer.setPoints(points - 10);
-            }
-
-            customerRepo.save(customer);
-        }
     }
 
     @Transactional
@@ -283,6 +272,68 @@ public class BookingService {
         response.setSuccess(true);
         response.setMessage("Hủy đặt phòng thành công");
         response.setStatus(HTTPResponse.SC_OK);
+        response.setData(savedBooking);
+
+        return response;
+    }
+
+    public APIResponse<Booking> createBookingByStaff(StaffBookingRequest bookingRequest) {
+        APIResponse<Booking> response = new APIResponse<>();
+        response.setSuccess(false);
+        response.setData(null);
+
+        boolean isRoomAvailable = roomRepo.isRoomAvailable(bookingRequest.getRoomId(), bookingRequest.getCheckIn(), bookingRequest.getCheckOut());
+
+        if (!isRoomAvailable) {
+            response.setStatus(HTTPResponse.SC_BAD_REQUEST);
+            response.setMessage("Không thể tạo đơn đặt phòng do phòng không khả dụng trong khoảng thời gian đã chọn");
+            return response;
+        }
+        Room room = roomRepo.findById(bookingRequest.getRoomId()).orElse(null);
+
+        Booking booking = new Booking();
+        booking.setId(idUtil.generateUniqueCodeForBooking());
+        booking.setContactName(bookingRequest.getContactName());
+        booking.setContactEmail(bookingRequest.getContactEmail());
+        booking.setContactPhone(bookingRequest.getContactPhone());
+        booking.setRoom(room);
+        booking.setCheckIn(bookingRequest.getCheckIn());
+        booking.setCheckOut(bookingRequest.getCheckOut());
+        booking.setRoomPrice(bookingRequest.getRoomPrice());
+        booking.setNights(bookingRequest.getNights());
+        booking.setNotes(bookingRequest.getNotes());
+        booking.setBookingStatus(bookingRequest.getBookingSource() == BookingSource.FRONT_DESK ? BookingStatus.CHECKED_IN : BookingStatus.CONFIRMED);
+        booking.setBookingSource(bookingRequest.getBookingSource());
+        booking.setCreatedAt(LocalDateTime.now());
+        booking.setActualCheckIn(bookingRequest.getBookingSource() == BookingSource.FRONT_DESK ? LocalDateTime.now() : null);
+        booking.setActualCheckOut(null);
+        booking.setUpdatedBy(null);
+        booking.setUpdatedAt(null);
+        booking.setExtraServices(0);
+        booking.setFirstTimeDiscount(0);
+        booking.setPointDiscount(0);
+
+        Optional<User> userOpt = userRepo.findById(bookingRequest.getUserId());
+        if (userOpt.isPresent()) {
+            booking.setCreatedBy(userOpt.get());
+        } else {
+            response.setSuccess(false);
+            response.setStatus(HTTPResponse.SC_BAD_REQUEST);
+            response.setMessage("Người dùng không tồn tại.");
+            response.setData(null);
+            return response;
+        }
+
+        booking.setPaid(Boolean.TRUE.equals(bookingRequest.getPaid()));
+        booking.setVatFee(bookingRequest.getVatFee());
+        booking.setTotal(bookingRequest.getTotal());
+        booking.setTotalPayment(bookingRequest.getTotalPayment());
+
+        Booking savedBooking = bookingRepo.save(booking);
+
+        response.setSuccess(true);
+        response.setStatus(HTTPResponse.SC_OK);
+        response.setMessage("Tạo đơn đặt phòng thành công");
         response.setData(savedBooking);
 
         return response;

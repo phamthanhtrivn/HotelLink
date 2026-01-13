@@ -22,12 +22,20 @@ export const bookingService = {
   getBookingsByCustomerId: async (customerId, params) => {
     const res = await api.get(`/member/bookings/customer/${customerId}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      params
-    })
+      params,
+    });
     return res.data;
   },
   cancelBookingByCustomer: async (bookingId) => {
-    const res = await api.put(`/public/bookings/${bookingId}`)
+    const res = await api.put(`/public/bookings/${bookingId}`);
     return res.data;
-  }
+  },
+  createByStaff: async (bookingRequest) => {
+    const res = await api.post("/staff/bookings", bookingRequest, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    return res.data;
+  },
 };

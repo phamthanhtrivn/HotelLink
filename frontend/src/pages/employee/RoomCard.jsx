@@ -13,7 +13,7 @@ import { ROOM_STATUS_OPTIONS } from "@/constants/RoomConstants";
 import { PlusCircle } from "lucide-react";
 import React from "react";
 
-const RoomCard = ({ room, meta, Icon }) => {
+const RoomCard = ({ room, meta, Icon, onUpdate, onCreate, roomType }) => {
   return (
     <Card
       key={room.roomId}
@@ -52,7 +52,10 @@ const RoomCard = ({ room, meta, Icon }) => {
       </div>
 
       <div className="flex items-center gap-2">
-        <Select defaultValue={room.roomStatus}>
+        <Select
+          defaultValue={room.roomStatus}
+          onValueChange={(value) => onUpdate(room.roomId, value)}
+        >
           <SelectTrigger
             className={`
               w-36
@@ -84,6 +87,7 @@ const RoomCard = ({ room, meta, Icon }) => {
 
         {room.roomStatus === "AVAILABLE" && (
           <Button
+            onClick={() => onCreate(room, roomType)}
             size="sm"
             className={`
               cursor-pointer
