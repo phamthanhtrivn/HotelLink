@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "booking_services")
-public class BookingService {
+public class BookingServiceEntity {
 
     @EmbeddedId
     private BookingServiceId bookingServiceId;

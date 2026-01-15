@@ -3,6 +3,8 @@ package iuh.fit.backend.repository;
 import iuh.fit.backend.entity.ServiceEntity;
 import iuh.fit.backend.entity.ServiceType;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,4 +25,6 @@ public interface ServiceRepo extends JpaRepository<ServiceEntity, String> {
   Page<ServiceEntity> search(@Param("name") String name, @Param("type") ServiceType type, @Param("status") Boolean status,  @Param("minPrice") Double minPrice,  @Param("maxPrice") Double maxPrice, Pageable pageable);
 
   boolean existsServicesById(String id);
+
+  ServiceEntity findByNameContainingIgnoreCaseAndStatusTrue(String name, boolean status);
 }

@@ -4,5 +4,6 @@ public enum ServiceType {
     TIME_BASED,
     FOOD,
     DRINK,
+    PER_GUEST,
     OTHER
 }

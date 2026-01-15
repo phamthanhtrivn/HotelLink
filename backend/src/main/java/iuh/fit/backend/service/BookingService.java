@@ -1,9 +1,7 @@
 package iuh.fit.backend.service;
 
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
-import iuh.fit.backend.dto.APIResponse;
-import iuh.fit.backend.dto.BookingRequest;
-import iuh.fit.backend.dto.StaffBookingRequest;
+import iuh.fit.backend.dto.*;
 import iuh.fit.backend.entity.*;
 import iuh.fit.backend.repository.BookingRepo;
 import iuh.fit.backend.repository.CustomerRepo;
@@ -34,6 +32,7 @@ public class BookingService {
     private final UserRepo userRepo;
     private final IdUtil idUtil;
     private final EmailService emailService;
+    private final BookingService_Service bookingServiceService;
 
     public APIResponse<Booking> createBookingByCustomer(BookingRequest request) {
         APIResponse<Booking> response = new APIResponse<>();
@@ -339,4 +338,159 @@ public class BookingService {
         return response;
     }
 
+    public APIResponse<Booking> updateBookingStatusByStaff(String bookingId, UpdateBookingStatusRequest request) {
+        APIResponse<Booking> response = new APIResponse<>();
+        response.setSuccess(false);
+        response.setData(null);
+
+        Optional<User> userOpt = userRepo.findById(request.getUserId());
+        if (userOpt.isEmpty()) {
+            response.setStatus(HTTPResponse.SC_BAD_REQUEST);
+            response.setMessage("Người dùng không tồn tại.");
+            return response;
+        }
+
+        Optional<Booking> bookingOpt = bookingRepo.findById(bookingId);
+        if (bookingOpt.isEmpty()) {
+            response.setStatus(HTTPResponse.SC_BAD_REQUEST);
+            response.setMessage("Đơn đặt phòng không tồn tại.");
+            return response;
+        }
+
+        Booking booking = bookingOpt.get();
+        BookingStatus currentStatus = booking.getBookingStatus();
+        LocalDateTime now = LocalDateTime.now();
+
+        if (request.getBookingStatus() == BookingStatus.CANCELLED) {
+            if (currentStatus != BookingStatus.CONFIRMED) {
+                response.setStatus(HTTPResponse.SC_BAD_REQUEST);
+                response.setMessage("Chỉ có thể hủy đơn khi đơn đang ở trạng thái CONFIRMED.");
+                return response;
+            }
+
+            if (now.isAfter(booking.getCheckIn().minusDays(1))) {
+                response.setStatus(HTTPResponse.SC_BAD_REQUEST);
+                response.setMessage("Chỉ có thể hủy đơn trước thời gian check-in ít nhất 1 ngày.");
+                return response;
+            }
+
+            booking.setBookingStatus(BookingStatus.CANCELLED);
+        }
+        else if (request.getBookingStatus() == BookingStatus.NO_SHOW){
+            if (currentStatus != BookingStatus.CONFIRMED) {
+                response.setStatus(HTTPResponse.SC_BAD_REQUEST);
+                response.setMessage("Chỉ có thể chuyển NO_SHOW khi đơn đang ở trạng thái CONFIRMED.");
+                return response;
+            }
+
+            if (now.isBefore(booking.getCheckIn().plusHours(1))) {
+                response.setStatus(HTTPResponse.SC_BAD_REQUEST);
+                response.setMessage("Chỉ có thể đánh dấu NO_SHOW sau giờ check-in ít nhất 1 tiếng.");
+                return response;
+            }
+
+            booking.setBookingStatus(BookingStatus.NO_SHOW);
+        }
+        else {
+            response.setStatus(HTTPResponse.SC_BAD_REQUEST);
+            response.setMessage("Trạng thái này không được xử lý trong API này.");
+            return response;
+        }
+
+        booking.setUpdatedBy(userOpt.get());
+        booking.setUpdatedAt(now);
+
+        Booking savedBooking = bookingRepo.save(booking);
+
+        response.setSuccess(true);
+        response.setStatus(HTTPResponse.SC_OK);
+        response.setMessage("Cập nhật trạng thái đơn đặt phòng thành công.");
+        response.setData(savedBooking);
+
+        return response;
+    }
+
+    public APIResponse<Booking> checkInBookingByStaff(String bookingId, String userId) {
+        APIResponse<Booking> response = new APIResponse<>();
+        response.setSuccess(false);
+        response.setData(null);
+
+        Optional<User> userOpt = userRepo.findById(userId);
+        if (userOpt.isEmpty()) {
+            response.setStatus(HTTPResponse.SC_BAD_REQUEST);
+            response.setMessage("Người dùng không tồn tại.");
+            return response;
+        }
+
+        Optional<Booking> bookingOpt = bookingRepo.findById(bookingId);
+        if (bookingOpt.isEmpty()) {
+            response.setStatus(HTTPResponse.SC_BAD_REQUEST);
+            response.setMessage("Đơn đặt phòng không tồn tại.");
+            return response;
+        }
+
+        Booking booking = bookingOpt.get();
+        BookingStatus currentStatus = booking.getBookingStatus();
+        LocalDateTime now = LocalDateTime.now();
+
+        if (currentStatus != BookingStatus.CONFIRMED) {
+            response.setStatus(HTTPResponse.SC_BAD_REQUEST);
+            response.setMessage("Chỉ có thể check-in khi đơn đang ở trạng thái CONFIRMED.");
+            return response;
+        }
+
+        if (now.isBefore(booking.getCheckIn().minusMinutes(30))) {
+            bookingServiceService.earlyCheckIn(booking.getId());
+        }
+
+        booking.setBookingStatus(BookingStatus.CHECKED_IN);
+        booking.setActualCheckIn(now);
+        booking.setUpdatedBy(userOpt.get());
+        booking.setUpdatedAt(now);
+
+        Booking savedBooking = bookingRepo.save(booking);
+
+        response.setSuccess(true);
+        response.setStatus(HTTPResponse.SC_OK);
+        response.setMessage("Check-in thành công.");
+        response.setData(savedBooking);
+
+        return response;
+    }
+
+    public APIResponse<Booking> addServicesToBookingByStaff(String bookingId, AddBookingServiceRequest request) {
+        APIResponse<Booking> response = new APIResponse<>();
+        response.setSuccess(false);
+        response.setData(null);
+
+        Optional<User> userOpt = userRepo.findById(request.getUserId());
+        if (userOpt.isEmpty()) {
+            response.setStatus(HTTPResponse.SC_BAD_REQUEST);
+            response.setMessage("Người dùng không tồn tại.");
+            return response;
+        }
+
+        Optional<Booking> bookingOpt = bookingRepo.findById(bookingId);
+        if (bookingOpt.isEmpty()) {
+            response.setStatus(HTTPResponse.SC_BAD_REQUEST);
+            response.setMessage("Đơn đặt phòng không tồn tại.");
+            return response;
+        }
+
+        List<AddBookingServiceRequest.ServiceItem> serviceItems = request.getServices();
+        bookingServiceService.addServicesToBooking(bookingId, serviceItems);
+
+        Booking booking = bookingOpt.get();
+        booking.setUpdatedBy(userOpt.get());
+        booking.setUpdatedAt(LocalDateTime.now());
+
+        Booking savedBooking = bookingRepo.save(booking);
+
+        response.setSuccess(true);
+        response.setStatus(HTTPResponse.SC_OK);
+        response.setMessage("Thêm dịch vụ vào đơn đặt phòng thành công.");
+        response.setData(savedBooking);
+
+        return response;
+    }
 }
