@@ -81,5 +81,21 @@ export const bookingService = {
       },
     });
     return res.data;
+  },
+  previewCheckOut: async (bookingId) => {
+    const res = await api.get(`/staff/bookings/${bookingId}/preview-checkout`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      }
+    })
+    return res.data
+  },
+  checkOutBooking: async (bookingId, data) => {
+    const res = await api.post(`/staff/bookings/${bookingId}/check-out`, data, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      }
+    })
+    return res.data
   }
 };

@@ -60,8 +60,8 @@ public class Staff_BookingController {
     }
 
     @PostMapping("/{bookingId}/check-out")
-    public ResponseEntity<APIResponse<?>> checkOutBooking(@PathVariable String bookingId, @RequestBody String userId) {
-        APIResponse<?> response = bookingService.checkOutBookingByStaff(bookingId, userId);
+    public ResponseEntity<APIResponse<?>> checkOutBooking(@PathVariable String bookingId, @RequestBody CheckOutRequest request) {
+        APIResponse<?> response = bookingService.checkOutBookingByStaff(bookingId, request);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 

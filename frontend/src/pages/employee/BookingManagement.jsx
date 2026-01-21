@@ -43,6 +43,7 @@ import { AuthContext } from "@/context/AuthContext";
 import { formatVND } from "@/helpers/currencyFormatter";
 import { BookingDetailModal } from "@/components/common/employee/BookingDetailModal";
 import AddBookingServiceModal from "@/components/common/employee/AddBookingServiceModal";
+import PreviewCheckoutModal from "@/components/common/employee/PreviewCheckoutModal";
 
 const BookingManagement = () => {
   const { user } = useContext(AuthContext);
@@ -124,6 +125,7 @@ const BookingManagement = () => {
   const [currentBooking, setCurrentBooking] = useState(null);
   const [openDetail, setOpenDetail] = useState(false);
   const [openAddService, setOpenAddService] = useState(false);
+  const [openPreviewCheckout, setOpenPreviewCheckout] = useState(false);
   const [loading, setLoading] = useState(false);
   const [noShowUpLoading, setNoShowUpLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
@@ -296,6 +298,11 @@ const BookingManagement = () => {
   const handleAddServices = (booking) => {
     setCurrentBooking(booking);
     setOpenAddService(true);
+  };
+
+  const handleOpenPreviewCheckout = (booking) => {
+    setCurrentBooking(booking);
+    setOpenPreviewCheckout(true);
   };
 
   useEffect(() => {
@@ -539,14 +546,15 @@ const BookingManagement = () => {
                   {item.booking.bookingStatus === "CHECKED_IN" && (
                     <>
                       <Button
+                        onClick={() => handleOpenPreviewCheckout(item)}
                         className="
-                    flex items-center justify-center gap-2
-                    bg-rose-500 hover:bg-rose-600
-                    text-white font-medium
-                    rounded-lg h-10
-                    transition-all
-                    cursor-pointer
-                  "
+                          flex items-center justify-center gap-2
+                          bg-rose-500 hover:bg-rose-600
+                          text-white font-medium
+                          rounded-lg h-10
+                          transition-all
+                          cursor-pointer
+                        "
                       >
                         <LogOut className="w-4 h-4" />
                         Trả phòng
@@ -597,6 +605,15 @@ const BookingManagement = () => {
           bookingId={currentBooking.booking.id}
           userId={user.userId}
           bookingServices={currentBooking.bookingServices}
+          reload={() => fetchBookings(page)}
+        />
+      )}
+      {currentBooking && (
+        <PreviewCheckoutModal
+          open={openPreviewCheckout}
+          onClose={() => setOpenPreviewCheckout(false)}
+          booking={currentBooking.booking}
+          userId={user.userId}
           reload={() => fetchBookings(page)}
         />
       )}

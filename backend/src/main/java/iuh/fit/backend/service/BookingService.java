@@ -577,13 +577,16 @@ public class BookingService {
         previewCheckOutDTO.setUsedServices(usedServices);
 
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime standardCheckout = booking.getCheckOut().toLocalDate().atTime(14, 30);
+        LocalDateTime standardCheckout = booking.getCheckOut().plusMinutes(30);
 
         boolean isLate = now.isAfter(standardCheckout);
         if (isLate) {
             ServiceEntity lateCheckOutService = bookingServiceService.lateCheckOutService();
+            System.out.println(lateCheckOutService.getName().isEmpty() ? "Late check-out service not found" : "Late check-out service found");
             previewCheckOutDTO.setLateCheckOutService(lateCheckOutService);
         }
+
+        System.out.println(previewCheckOutDTO.getLateCheckOutService());
 
         response.setSuccess(true);
         response.setStatus(HTTPResponse.SC_OK);
@@ -594,12 +597,12 @@ public class BookingService {
     }
 
     @Transactional
-    public APIResponse<Booking> checkOutBookingByStaff(String bookingId, String userId) {
+    public APIResponse<Booking> checkOutBookingByStaff(String bookingId, CheckOutRequest request) {
         APIResponse<Booking> response = new APIResponse<>();
         response.setSuccess(false);
         response.setData(null);
 
-        Optional<User> userOpt = userRepo.findById(userId);
+        Optional<User> userOpt = userRepo.findById(request.getUserId());
         if (userOpt.isEmpty()) {
             response.setStatus(HTTPResponse.SC_BAD_REQUEST);
             response.setMessage("Người dùng không tồn tại.");
@@ -623,21 +626,19 @@ public class BookingService {
 
         LocalDateTime now = LocalDateTime.now();
 
-        LocalDateTime standardCheckout = booking.getCheckOut().toLocalDate().atTime(14, 30);
+        LocalDateTime standardCheckout = booking.getCheckOut().plusMinutes(30);
 
-        double lateCharge = 0;
+
         if (now.isAfter(standardCheckout)) {
-            lateCharge = bookingServiceService.lateCheckOut(booking);
+            bookingServiceService.lateCheckOut(booking);
         }
 
         List<BookingServiceEntity> usedServices = bookingServiceService.getServicesByBookingId(bookingId);
         double servicesCharge = usedServices.stream().mapToDouble(bs -> bs.getPrice() * bs.getQuantity()).sum();
 
-        double totalExtraServices = servicesCharge + lateCharge;
-
         booking.setPaid(true);
-        booking.setExtraServices(totalExtraServices);
-        booking.setTotalPayment(booking.getTotalPayment() + totalExtraServices);
+        booking.setExtraServices(servicesCharge);
+        booking.setTotalPayment(booking.getTotalPayment() + servicesCharge);
         booking.setActualCheckOut(now);
         booking.setBookingStatus(BookingStatus.COMPLETED);
         booking.setUpdatedBy(userOpt.get());

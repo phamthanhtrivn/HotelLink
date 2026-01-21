@@ -133,7 +133,7 @@ public class BookingService_Service {
     }
 
 
-    public double lateCheckOut(Booking booking) {
+    public void lateCheckOut(Booking booking) {
         ServiceEntity lateService = serviceRepo.findByNameContainingIgnoreCaseAndStatusTrue("CheckOut", true);
 
         if (lateService == null) {
@@ -150,7 +150,6 @@ public class BookingService_Service {
         entity.setPrice(lateService.getUnitPrice());
 
         bookingServiceRepo.save(entity);
-        return lateService.getUnitPrice();
     }
 
 
