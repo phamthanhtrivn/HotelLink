@@ -52,5 +52,11 @@ public class Admin_ServiceController {
       APIResponse<?> response = service.updateService(serviceId, serviceEntity);
       return ResponseEntity.status(response.getStatus()).body(response);
   }
+
+    @GetMapping("/active-services")
+    public ResponseEntity<APIResponse<?>> getAllActiveServices() {
+        APIResponse<?> response = service.getAllServices();
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
   
 }

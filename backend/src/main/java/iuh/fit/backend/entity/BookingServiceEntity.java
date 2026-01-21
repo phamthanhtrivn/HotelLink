@@ -34,5 +34,4 @@ public class BookingServiceEntity {
     private int quantity;
     @DecimalMin(value = "10000", message = "Giá dịch vụ phải lớn hơn hoặc bằng 10,000 VND")
     private double price;
-    private LocalDateTime usedAt;
 }

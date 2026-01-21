@@ -30,11 +30,11 @@ public class BookingService_Service {
         }
 
         BookingServiceEntity bookingService = new BookingServiceEntity();
+        bookingService.setBookingServiceId(new BookingServiceId(bookingId, earlyCheckInService.getId()));
         bookingService.setBooking(booking);
         bookingService.setService(earlyCheckInService);
         bookingService.setQuantity(1);
         bookingService.setPrice(earlyCheckInService.getUnitPrice());
-        bookingService.setUsedAt(LocalDateTime.now());
 
         bookingServiceRepo.save(bookingService);
 
@@ -90,7 +90,6 @@ public class BookingService_Service {
             bookingService.setService(service);
             bookingService.setQuantity(quantity);
             bookingService.setPrice(service.getUnitPrice());
-            bookingService.setUsedAt(LocalDateTime.now());
 
             result.add(bookingService);
         }
@@ -109,7 +108,7 @@ public class BookingService_Service {
                     );
                 }
             }
-            case TIME_BASED, OTHER -> {
+            case TIME_BASED -> {
                 if (quantity != 1) {
                     throw new IllegalArgumentException(
                             "Dịch vụ " + service.getName() + " chỉ được phép số lượng = 1"
@@ -118,5 +117,41 @@ public class BookingService_Service {
             }
         }
     }
+
+    public List<BookingServiceEntity> getServicesByBookingId(String bookingId) {
+        return bookingServiceRepo.findByBooking_Id(bookingId);
+    }
+
+    public ServiceEntity lateCheckOutService() {
+        ServiceEntity lateService = serviceRepo.findByNameContainingIgnoreCaseAndStatusTrue("CheckOut", true);
+
+        if (lateService == null) {
+            throw new IllegalArgumentException("Dịch vụ CheckOut trễ không tồn tại");
+        }
+
+        return lateService;
+    }
+
+
+    public double lateCheckOut(Booking booking) {
+        ServiceEntity lateService = serviceRepo.findByNameContainingIgnoreCaseAndStatusTrue("CheckOut", true);
+
+        if (lateService == null) {
+            throw new IllegalArgumentException("Dịch vụ CheckOut trễ không tồn tại");
+        }
+
+        BookingServiceEntity entity = new BookingServiceEntity();
+        entity.setBookingServiceId(
+                new BookingServiceId(booking.getId(), lateService.getId())
+        );
+        entity.setBooking(booking);
+        entity.setService(lateService);
+        entity.setQuantity(1);
+        entity.setPrice(lateService.getUnitPrice());
+
+        bookingServiceRepo.save(entity);
+        return lateService.getUnitPrice();
+    }
+
 
 }

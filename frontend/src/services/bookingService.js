@@ -10,7 +10,7 @@ export const bookingService = {
   createBookingByCustomer: async (bookingRequest) => {
     const res = await api.post(
       `/public/bookings/create-by-customer`,
-      bookingRequest
+      bookingRequest,
     );
 
     return await res.data;
@@ -38,4 +38,48 @@ export const bookingService = {
     });
     return res.data;
   },
+  searchAdvance: async (data, params) => {
+    const res = await api.post(`/staff/bookings/search-advance`, data, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      params,
+    });
+    return res.data;
+  },
+  updateBookingStatus: async (bookingId, data) => {
+    const res = await api.patch(
+      `/staff/bookings/${bookingId}/booking-status`,
+      {
+        userId: data.userId,
+        bookingStatus: data.bookingStatus,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      },
+    );
+    return res.data;
+  },
+  checkInBooking: async (bookingId, userId) => {
+    const res = await api.patch(
+      `/staff/bookings/${bookingId}/check-in`,
+      { userId },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      },
+    );
+    return res.data;
+  },
+  addServicesToBooking: async (bookingId, data) => {
+    const res = await api.post(`/staff/bookings/${bookingId}/add-services`, data, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    return res.data;
+  }
 };

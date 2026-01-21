@@ -13,6 +13,8 @@ import iuh.fit.backend.repository.ServiceRepo;
 import iuh.fit.backend.util.IdUtil;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class Service_Service {
@@ -61,6 +63,18 @@ public class Service_Service {
     response.setStatus(HTTPResponse.SC_OK);
     response.setMessage("Cập nhật dịch vụ thành công");
     response.setData(savedService);
+
+    return response;
+  }
+
+  public APIResponse<List<ServiceEntity>> getAllServices() {
+    APIResponse<List<ServiceEntity>> response = new APIResponse<>();
+
+    List<ServiceEntity> services = serviceRepo.findAllByServiceTypeNotAndStatusTrue(ServiceType.TIME_BASED, true);
+    response.setSuccess(true);
+    response.setStatus(HTTPResponse.SC_OK);
+    response.setMessage("Lấy danh sách dịch vụ thành công");
+    response.setData(services);
 
     return response;
   }

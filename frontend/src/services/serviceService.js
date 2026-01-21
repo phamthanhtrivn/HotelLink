@@ -1,6 +1,6 @@
 import api from "./api";
 
-export const serviceSerice = {
+export const serviceService = {
   findService: async (params) => {
     const res = await api.get(`/admin/services`, {
       params,
@@ -23,6 +23,12 @@ export const serviceSerice = {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
+    });
+    return res.data;
+  },
+  getAllActiveServices: async () => {
+    const res = await api.get(`/admin/services/active-services`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     });
     return res.data;
   },

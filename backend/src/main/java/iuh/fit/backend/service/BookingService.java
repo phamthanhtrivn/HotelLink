@@ -3,10 +3,7 @@ package iuh.fit.backend.service;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import iuh.fit.backend.dto.*;
 import iuh.fit.backend.entity.*;
-import iuh.fit.backend.repository.BookingRepo;
-import iuh.fit.backend.repository.CustomerRepo;
-import iuh.fit.backend.repository.RoomRepo;
-import iuh.fit.backend.repository.UserRepo;
+import iuh.fit.backend.repository.*;
 import iuh.fit.backend.util.IdUtil;
 import iuh.fit.backend.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +30,64 @@ public class BookingService {
     private final IdUtil idUtil;
     private final EmailService emailService;
     private final BookingService_Service bookingServiceService;
+
+    public APIResponse<Page<BookingSearchDTO>> searchAdvance(
+            BookingSearchRequest request,
+            Pageable pageable
+    ) {
+        APIResponse<Page<BookingSearchDTO>> response = new APIResponse<>();
+
+        LocalDateTime checkInFrom = request.getCheckInFrom();
+        LocalDateTime checkInTo = request.getCheckInTo();
+        LocalDateTime checkOutFrom = request.getCheckOutFrom();
+        LocalDateTime checkOutTo = request.getCheckOutTo();
+
+        if (request.getCheckInFrom() != null && request.getCheckInTo() != null) {
+            checkInFrom = request.getCheckInFrom().toLocalDate().atTime(14, 0);
+            checkInTo = request.getCheckInTo().toLocalDate().atTime(14, 0);
+        }
+
+        if (request.getCheckOutFrom() != null && request.getCheckOutTo() != null) {
+            checkOutFrom = request.getCheckOutFrom().toLocalDate().atTime(12, 0);
+            checkOutTo = request.getCheckOutTo().toLocalDate().atTime(12, 0);
+        }
+
+        Page<Booking> result = bookingRepo.searchAdvance(
+                normalize(request.getKeyword()),
+                request.getBookingStatus(),
+                request.getBookingSource(),
+                request.getRoomNumber(),
+                request.getPaid(),
+                checkInFrom,
+                checkInTo,
+                checkOutFrom,
+                checkOutTo,
+                pageable
+        );
+
+        Page<BookingSearchDTO> dtoPage = result.map(booking -> {
+            List<BookingServiceEntity> services =
+                    bookingServiceService.getServicesByBookingId(booking.getId());
+
+            BookingSearchDTO dto = new BookingSearchDTO();
+            dto.setBooking(booking);
+            dto.setBookingServices(services);
+
+            return dto;
+        });
+
+        response.setSuccess(true);
+        response.setStatus(HTTPResponse.SC_OK);
+        response.setMessage("Tìm kiếm đơn đặt phòng thành công");
+        response.setData(dtoPage);
+
+        return response;
+    }
+
+    private String normalize(String keyword) {
+        return (keyword == null || keyword.isBlank()) ? null : keyword.trim();
+    }
+
 
     public APIResponse<Booking> createBookingByCustomer(BookingRequest request) {
         APIResponse<Booking> response = new APIResponse<>();
@@ -364,11 +419,11 @@ public class BookingService {
         if (request.getBookingStatus() == BookingStatus.CANCELLED) {
             if (currentStatus != BookingStatus.CONFIRMED) {
                 response.setStatus(HTTPResponse.SC_BAD_REQUEST);
-                response.setMessage("Chỉ có thể hủy đơn khi đơn đang ở trạng thái CONFIRMED.");
+                response.setMessage("Chỉ có thể hủy đơn khi đơn đang ở trạng thái Xác Nhận.");
                 return response;
             }
 
-            if (now.isAfter(booking.getCheckIn().minusDays(1))) {
+            if (now.isBefore(booking.getCheckIn().minusDays(1))) {
                 response.setStatus(HTTPResponse.SC_BAD_REQUEST);
                 response.setMessage("Chỉ có thể hủy đơn trước thời gian check-in ít nhất 1 ngày.");
                 return response;
@@ -379,13 +434,13 @@ public class BookingService {
         else if (request.getBookingStatus() == BookingStatus.NO_SHOW){
             if (currentStatus != BookingStatus.CONFIRMED) {
                 response.setStatus(HTTPResponse.SC_BAD_REQUEST);
-                response.setMessage("Chỉ có thể chuyển NO_SHOW khi đơn đang ở trạng thái CONFIRMED.");
+                response.setMessage("Chỉ có thể chuyển Không Đến khi đơn đang ở trạng thái Xác Nhận.");
                 return response;
             }
 
-            if (now.isBefore(booking.getCheckIn().plusHours(1))) {
+            if (now.isAfter(booking.getCheckIn().plusHours(1))) {
                 response.setStatus(HTTPResponse.SC_BAD_REQUEST);
-                response.setMessage("Chỉ có thể đánh dấu NO_SHOW sau giờ check-in ít nhất 1 tiếng.");
+                response.setMessage("Chỉ có thể đánh dấu Không Đến sau giờ check-in ít nhất 1 tiếng.");
                 return response;
             }
 
@@ -393,7 +448,7 @@ public class BookingService {
         }
         else {
             response.setStatus(HTTPResponse.SC_BAD_REQUEST);
-            response.setMessage("Trạng thái này không được xử lý trong API này.");
+            response.setMessage("Trạng thái không hợp lệ.");
             return response;
         }
 
@@ -410,12 +465,13 @@ public class BookingService {
         return response;
     }
 
-    public APIResponse<Booking> checkInBookingByStaff(String bookingId, String userId) {
+    @Transactional
+    public APIResponse<Booking> checkInBookingByStaff(String bookingId, CheckInRequest request) {
         APIResponse<Booking> response = new APIResponse<>();
         response.setSuccess(false);
         response.setData(null);
 
-        Optional<User> userOpt = userRepo.findById(userId);
+        Optional<User> userOpt = userRepo.findById(request.getUserId());
         if (userOpt.isEmpty()) {
             response.setStatus(HTTPResponse.SC_BAD_REQUEST);
             response.setMessage("Người dùng không tồn tại.");
@@ -458,6 +514,7 @@ public class BookingService {
         return response;
     }
 
+    @Transactional
     public APIResponse<Booking> addServicesToBookingByStaff(String bookingId, AddBookingServiceRequest request) {
         APIResponse<Booking> response = new APIResponse<>();
         response.setSuccess(false);
@@ -489,6 +546,108 @@ public class BookingService {
         response.setSuccess(true);
         response.setStatus(HTTPResponse.SC_OK);
         response.setMessage("Thêm dịch vụ vào đơn đặt phòng thành công.");
+        response.setData(savedBooking);
+
+        return response;
+    }
+
+    public APIResponse<PreviewCheckOutDTO> previewCheckoutByStaff(String bookingId) {
+        APIResponse<PreviewCheckOutDTO> response = new APIResponse<>();
+        response.setSuccess(false);
+        response.setData(null);
+
+        Optional<Booking> bookingOpt = bookingRepo.findById(bookingId);
+        if (bookingOpt.isEmpty()) {
+            response.setStatus(HTTPResponse.SC_BAD_REQUEST);
+            response.setMessage("Đơn đặt phòng không tồn tại.");
+            return response;
+        }
+
+        Booking booking = bookingOpt.get();
+
+        if (booking.getBookingStatus() != BookingStatus.CHECKED_IN) {
+            response.setStatus(HTTPResponse.SC_BAD_REQUEST);
+            response.setMessage("Chỉ có thể xem trước thanh toán khi đơn đang ở trạng thái CHECKED_IN.");
+            return response;
+        }
+
+        PreviewCheckOutDTO previewCheckOutDTO = new PreviewCheckOutDTO();
+
+        List<BookingServiceEntity> usedServices = bookingServiceService.getServicesByBookingId(bookingId);
+        previewCheckOutDTO.setUsedServices(usedServices);
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime standardCheckout = booking.getCheckOut().toLocalDate().atTime(14, 30);
+
+        boolean isLate = now.isAfter(standardCheckout);
+        if (isLate) {
+            ServiceEntity lateCheckOutService = bookingServiceService.lateCheckOutService();
+            previewCheckOutDTO.setLateCheckOutService(lateCheckOutService);
+        }
+
+        response.setSuccess(true);
+        response.setStatus(HTTPResponse.SC_OK);
+        response.setMessage("Xem trước thanh toán thành công.");
+        response.setData(previewCheckOutDTO);
+
+        return response;
+    }
+
+    @Transactional
+    public APIResponse<Booking> checkOutBookingByStaff(String bookingId, String userId) {
+        APIResponse<Booking> response = new APIResponse<>();
+        response.setSuccess(false);
+        response.setData(null);
+
+        Optional<User> userOpt = userRepo.findById(userId);
+        if (userOpt.isEmpty()) {
+            response.setStatus(HTTPResponse.SC_BAD_REQUEST);
+            response.setMessage("Người dùng không tồn tại.");
+            return response;
+        }
+
+        Optional<Booking> bookingOpt = bookingRepo.findById(bookingId);
+        if (bookingOpt.isEmpty()) {
+            response.setStatus(HTTPResponse.SC_BAD_REQUEST);
+            response.setMessage("Đơn đặt phòng không tồn tại.");
+            return response;
+        }
+
+        Booking booking = bookingOpt.get();
+
+        if (booking.getBookingStatus() != BookingStatus.CHECKED_IN) {
+            response.setStatus(HTTPResponse.SC_BAD_REQUEST);
+            response.setMessage("Chỉ có thể check-out khi đơn đang ở trạng thái CHECKED_IN.");
+            return response;
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        LocalDateTime standardCheckout = booking.getCheckOut().toLocalDate().atTime(14, 30);
+
+        double lateCharge = 0;
+        if (now.isAfter(standardCheckout)) {
+            lateCharge = bookingServiceService.lateCheckOut(booking);
+        }
+
+        List<BookingServiceEntity> usedServices = bookingServiceService.getServicesByBookingId(bookingId);
+        double servicesCharge = usedServices.stream().mapToDouble(bs -> bs.getPrice() * bs.getQuantity()).sum();
+
+        double totalExtraServices = servicesCharge + lateCharge;
+
+        booking.setPaid(true);
+        booking.setExtraServices(totalExtraServices);
+        booking.setTotalPayment(booking.getTotalPayment() + totalExtraServices);
+        booking.setActualCheckOut(now);
+        booking.setBookingStatus(BookingStatus.COMPLETED);
+        booking.setUpdatedBy(userOpt.get());
+        booking.setUpdatedAt(now);
+
+        Booking savedBooking = bookingRepo.save(booking);
+
+        response.setSuccess(true);
+        response.setStatus(HTTPResponse.SC_OK);
+        response.setMessage("Check-out thành công.");
         response.setData(savedBooking);
 
         return response;

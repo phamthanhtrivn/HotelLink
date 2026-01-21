@@ -22,7 +22,6 @@ import AdminPagination from "@/components/common/employee/AdminPagination";
 import ActionButtons from "@/components/common/employee/ActionButtons";
 import DetailDialog from "@/components/common/employee/DetailModal";
 
-import { serviceSerice } from "@/services/serviceService";
 import { formatVND } from "@/helpers/currencyFormatter";
 import {
   DEFAULT_PRICE_RANGE,
@@ -31,6 +30,7 @@ import {
 } from "@/constants/ServiceConstants";
 import { STATUS_OPTIONS } from "@/constants/StatusConstants";
 import EditCreateModal from "@/components/common/employee/EditCreateModal";
+import { serviceService } from "@/services/serviceService";
 
 const ServiceManagement = () => {
   const columns = [
@@ -88,7 +88,7 @@ const ServiceManagement = () => {
   const fetchServices = async (pageIndex = 0, priceOverride) => {
     setLoading(true);
     try {
-      const res = await serviceSerice.findService({
+      const res = await serviceService.findService({
         page: pageIndex,
         size: 10,
         ...(filters.name && { name: filters.name }),
@@ -167,7 +167,7 @@ const ServiceManagement = () => {
       setSaveLoading(true);
 
       if (currentService) {
-        const res = await serviceSerice.updateService(
+        const res = await serviceService.updateService(
           currentService.id,
           payload
         );
@@ -181,7 +181,7 @@ const ServiceManagement = () => {
           setErrors(res.data);
         }
       } else {
-        const res = await serviceSerice.saveService(payload);
+        const res = await serviceService.saveService(payload);
         if (res.success) {
           toast.success(res.message);
           setOpenForm(false);

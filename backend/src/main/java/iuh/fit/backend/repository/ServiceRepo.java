@@ -3,14 +3,14 @@ package iuh.fit.backend.repository;
 import iuh.fit.backend.entity.ServiceEntity;
 import iuh.fit.backend.entity.ServiceType;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface ServiceRepo extends JpaRepository<ServiceEntity, String> {
@@ -27,4 +27,6 @@ public interface ServiceRepo extends JpaRepository<ServiceEntity, String> {
   boolean existsServicesById(String id);
 
   ServiceEntity findByNameContainingIgnoreCaseAndStatusTrue(String name, boolean status);
+
+  List<ServiceEntity> findAllByServiceTypeNotAndStatusTrue(ServiceType serviceType, boolean status);
 }
