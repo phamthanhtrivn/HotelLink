@@ -1,5 +1,6 @@
 package iuh.fit.backend.repository;
 
+import iuh.fit.backend.dto.FeedbackDTO;
 import iuh.fit.backend.entity.Booking;
 import iuh.fit.backend.entity.Review;
 
@@ -61,5 +62,12 @@ public interface ReviewRepo extends JpaRepository<Review, String> {
             @Param("toDate") LocalDateTime toDate,
             @Param("minScore") Double minScore,
             @Param("maxScore") Double maxScore,
-            Pageable pageable);    
+            Pageable pageable);
+
+    @Query("SELECT new iuh.fit.backend.dto.FeedbackDTO(" +
+            "r.id, r.cleanlinessScore, r.serviceScore, r.facilitiesScore, " +
+            "r.comments, r.booking.room.roomType.name, r.createdAt) " +
+            "FROM Review r WHERE r.status = true ORDER BY r.createdAt DESC")
+    List<FeedbackDTO> findRecentFeedbacks(Pageable pageable);
+
 }

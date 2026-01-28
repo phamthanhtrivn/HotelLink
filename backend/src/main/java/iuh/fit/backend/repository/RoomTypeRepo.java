@@ -82,4 +82,9 @@ public interface RoomTypeRepo extends JpaRepository<RoomType, String> {
             @Param("status") Boolean status,
             Pageable pageable
     );
+
+    // Lấy tổng số phòng theo từng loại phòng
+    @Query("SELECT r.roomType.id, COUNT(r) FROM Room r GROUP BY r.roomType.id")
+    List<Object[]> countTotalByRoomType();
+
 }

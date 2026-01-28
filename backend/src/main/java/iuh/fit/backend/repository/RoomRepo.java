@@ -58,4 +58,7 @@ public interface RoomRepo extends JpaRepository<Room, String> {
             LocalDateTime checkIn,
             LocalDateTime checkOut
     );
+
+    @Query("SELECT COUNT(r) FROM Room r")
+    long countTotalRooms();
 }

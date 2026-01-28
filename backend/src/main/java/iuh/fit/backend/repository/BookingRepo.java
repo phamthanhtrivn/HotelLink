@@ -65,4 +65,45 @@ public interface BookingRepo extends JpaRepository<Booking, String> {
             Pageable pageable
     );
 
+    //    Thống kê Overview
+    @Query("SELECT COUNT(b) FROM Booking b WHERE b.checkIn >= :startOfDay AND b.checkIn < :endOfDay and b.bookingStatus <> 'CANCELLED' and b.bookingStatus <> 'NO_SHOW'")
+    long countCheckInToday(@Param("startOfDay") LocalDateTime start,  @Param("endOfDay") LocalDateTime end);
+
+    @Query("SELECT COUNT(b) FROM Booking b WHERE b.checkOut >= :startOfDay AND b.checkOut < :endOfDay AND b.bookingStatus <> 'CANCELLED' and b.bookingStatus <> 'NO_SHOW'")
+    long countCheckOutToday(@Param("startOfDay") LocalDateTime start, @Param("endOfDay") LocalDateTime end);
+
+    //    Đang ở
+    @Query("SELECT count(b) from Booking b where b.checkIn <= :now and b.checkOut >= :now and b.bookingStatus = 'CONFIRMED'")
+    long countTotalInHotel(@Param("now") LocalDateTime now);
+
+    //    Thống kê từng loại phòng:  đếm số phòng đang có khách của loại đó
+    @Query("""
+        select r.roomType.id, count(b) 
+        from Booking b join b.room r 
+        where b.checkIn <= :now and b.checkOut >= :now and b.bookingStatus <> 'CANCELLED' and b.bookingStatus <> 'NO_SHOW' 
+        GROUP BY r.roomType.id 
+        """)
+    List<Object[]> countOccupiedByRoomType(@Param("now") LocalDateTime now);
+
+    // Thống kê Doanh thu theo tháng trong năm (Dựa vào check_out hoặc ngay_tao)
+    @Query("SELECT MONTH(b.checkOut) as thang, SUM(b.totalPayment) as doanhThu " +
+            "FROM Booking b " +
+            "WHERE YEAR(b.checkOut) = :year AND b.bookingStatus = 'COMPLETED' " +
+            "GROUP BY MONTH(b.checkOut) " +
+            "ORDER BY MONTH(b.checkOut) ASC")
+    List<Object[]> getMonthlyRevenueByYear(@Param("year") int year);
+
+    // Đếm số deal (đơn có giảm giá) theo loại phòng
+    @Query("SELECT r.roomType.id, COUNT(b) FROM Booking b JOIN b.room r " +
+            "WHERE b.pointDiscount > 0 GROUP BY r.roomType.id")
+    List<Object[]> countDealsByRoomType();
+
+    // Tìm tất cả đơn đặt phòng có khoảng thời gian giao thoa với [startDate, endDate]
+    // Logic: CheckIn < EndDate VÀ CheckOut > StartDate (và phải Đã thanh toán)
+    @Query("SELECT b FROM Booking b WHERE b.checkIn < :endDate AND b.checkOut > :startDate AND b.bookingStatus <> 'CANCELLED' AND b.bookingStatus <> 'NO_SHOW'")
+    List<Booking> findBookingsInDateRange(
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate
+    );
+
 }

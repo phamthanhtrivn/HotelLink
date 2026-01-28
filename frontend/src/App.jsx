@@ -21,7 +21,7 @@ import AccountInfo from "./pages/customer/AccountInfo";
 import BookingHistory from "./pages/customer/BookingHistory";
 import BookingManagement from "./pages/employee/BookingManagement";
 import RoomAvailability from "./pages/employee/RoomAvailability";
-import AdminDashBoard from "./pages/employee/AdminDashBoard";
+import Dashboard from "./pages/employee/Dashboard";
 import RoomManagement from "./pages/employee/RoomManagement";
 import RoomTypeManagement from "./pages/employee/RoomTypeManagement";
 import CustomerManagement from "./pages/employee/CustomerManagement";
@@ -83,7 +83,7 @@ const App = () => {
           </ProtectedRoutes>
         }
       >
-        <Route index element={<StaffDashboard />} />
+        <Route index element={<Dashboard />} />
         <Route path="bookings" element={<BookingManagement />} />
         <Route path="room-availability" element={<RoomAvailability />} />
       </Route>
@@ -97,7 +97,7 @@ const App = () => {
           </ProtectedRoutes>
         }
       >
-        <Route index element={<AdminDashBoard />} />
+        <Route index element={<Dashboard />} />
         <Route path="bookings" element={<BookingManagement />} />
         <Route path="room-availability" element={<RoomAvailability />} />
         <Route path="rooms" element={<RoomManagement />} />
