@@ -14,7 +14,7 @@ export const staffService = {
     const res = await api.patch(`/admin/staffs/${staffId}/status`, null, {
       params: { status },
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`, 
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
     return res.data;
@@ -34,5 +34,13 @@ export const staffService = {
       },
     });
     return res.data;
-  }
+  },
+  getByUserId: async (userId) => {
+    const res = await api.get(`/staff/staffs/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    return res.data;
+  },
 };

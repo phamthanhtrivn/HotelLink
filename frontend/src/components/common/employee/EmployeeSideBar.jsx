@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { ChevronUp, LogOut, User2, UserCircle } from "lucide-react";
+import { ChevronUp, LogOut, UserCircle } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -25,8 +25,9 @@ import Swal from "sweetalert2";
 import { personService } from "@/services/personService";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import AdminProfileModal from "./AdminProfileModal";
 import { useNavigate } from "react-router-dom";
+import { staffService } from "@/services/staffService";
+import StaffProfileModal from "./AdminProfileModal";
 
 const AdminSidebar = ({ user, setUser, logout }) => {
   const menuByRole = {
@@ -55,7 +56,22 @@ const AdminSidebar = ({ user, setUser, logout }) => {
     }
   };
 
-  const handleFetchStaffInfor = async () => {};
+  const handleFetchStaffInfor = async () => {
+    setIsLoading(true);
+    try {
+      const res = await staffService.getByUserId(user?.userId);
+      if (res.success) {
+        setInfor(res.data);
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Lỗi khi lấy thông tin!");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (user.role === "ADMIN") {
@@ -191,7 +207,7 @@ const AdminSidebar = ({ user, setUser, logout }) => {
         </SidebarMenu>
       </SidebarFooter>
 
-      <AdminProfileModal
+      <StaffProfileModal
         open={openProfile}
         onClose={setOpenProfile}
         isLoading={isLoading}

@@ -14,7 +14,7 @@ import { personService } from "@/services/personService";
 import { Loader2 } from "lucide-react";
 import { authService } from "@/services/authService";
 
-const AdminProfileModal = ({
+const StaffProfileModal = ({
   open,
   onClose,
   isLoading,
@@ -36,7 +36,7 @@ const AdminProfileModal = ({
       };
       const res = await personService.updatePersonById(
         infor?.userId,
-        updateData
+        updateData,
       );
       if (res.success) {
         setInfor(res.data);
@@ -75,6 +75,9 @@ const AdminProfileModal = ({
       setProcessingPassword(false);
     }
   };
+
+  console.log(infor);
+  
 
   useEffect(() => {
     if (infor) {
@@ -123,6 +126,27 @@ const AdminProfileModal = ({
             <Label>Số điện thoại</Label>
             <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
           </div>
+
+          {infor?.identificationId && (
+            <div className="space-y-1">
+              <Label>CCCD/CMT</Label>
+              <Input value={infor?.identificationId} readOnly/>
+            </div>
+          )}
+
+          {infor?.gender && (
+            <div className="space-y-1">
+              <Label>Giới tính</Label>
+              <Input value={infor?.gender === "MALE" ? "Nam" : infor?.gender === "FEMALE" ? "Nữ" : "Khác"} readOnly/>
+            </div>
+          )}
+
+          {infor?.dateOfBirth && (
+            <div className="space-y-1">
+              <Label>Ngày sinh</Label>
+              <Input value={infor?.dateOfBirth} readOnly/>
+            </div>
+          )}
         </div>
 
         <div className="flex justify-end gap-3">
@@ -165,4 +189,4 @@ const AdminProfileModal = ({
   );
 };
 
-export default AdminProfileModal;
+export default StaffProfileModal;

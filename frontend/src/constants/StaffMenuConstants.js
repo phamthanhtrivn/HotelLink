@@ -27,11 +27,11 @@ export const itemsAdminMenu = [
 ];
 
 export const itemsStaffMenu = [
-  { name: "Dashboard", icon: ChartPie, url: "/admin" },
-  { name: "Đơn đặt phòng", icon: Calendar, url: "/admin/bookings" },
+  { name: "Dashboard", icon: ChartPie, url: "/staff" },
+  { name: "Đơn đặt phòng", icon: Calendar, url: "/staff/bookings" },
   {
     name: "Danh sách phòng trống",
     icon: Building,
-    url: "/admin/room-availability",
+    url: "/staff/room-availability",
   },
 ];

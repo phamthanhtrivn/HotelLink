@@ -2,21 +2,22 @@ package iuh.fit.backend.service;
 
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import iuh.fit.backend.dto.APIResponse;
+import iuh.fit.backend.dto.CustomerUpdateRequest;
 import iuh.fit.backend.dto.StaffRequest;
 import iuh.fit.backend.dto.StaffUpdateRequest;
-import iuh.fit.backend.entity.Gender;
-import iuh.fit.backend.entity.Staff;
-import iuh.fit.backend.entity.User;
-import iuh.fit.backend.entity.UserRole;
+import iuh.fit.backend.entity.*;
+import iuh.fit.backend.repository.PersonRepo;
 import iuh.fit.backend.repository.StaffRepo;
 import iuh.fit.backend.repository.UserRepo;
 import iuh.fit.backend.util.IdUtil;
+import iuh.fit.backend.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -150,4 +151,32 @@ public class StaffService {
 
         return response;
     }
+
+    public APIResponse<Person> getStaffInfoById(String userId) throws AccessDeniedException {
+        APIResponse<Person> response = new APIResponse<>();
+        response.setSuccess(false);
+        response.setData(null);
+
+        String currentId = SecurityUtil.getCurrentUserId();
+        if (!currentId.equals(userId)) {
+            response.setStatus(HTTPResponse.SC_FORBIDDEN);
+            response.setMessage("Chưa đăng nhập");
+            return response;
+        }
+
+        Optional<Staff> staffOpt = staffRepo.findById(userId);
+        if (staffOpt.isEmpty()) {
+            response.setStatus(HTTPResponse.SC_NOT_FOUND);
+            response.setMessage("Không tìm thấy thông tin nhân viên");
+            return response;
+        }
+
+        response.setSuccess(true);
+        response.setStatus(HTTPResponse.SC_OK);
+        response.setMessage("Lấy thông tin nhân viên thành công!");
+        response.setData(staffOpt.get());
+
+        return response;
+    }
+
 }

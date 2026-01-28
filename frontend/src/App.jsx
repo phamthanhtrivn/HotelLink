@@ -1,6 +1,5 @@
 import ProtectedRoutes from "./routes/ProtectedRoutes";
 import CustomerLayout from "./layouts/CustomerLayout";
-import StaffDashboard from "./pages/employee/StaffDashboard";
 import EmployeeLayout from "./layouts/EmployeeLayout";
 import Home from "./pages/customer/Home";
 import Login from "./pages/Login";
